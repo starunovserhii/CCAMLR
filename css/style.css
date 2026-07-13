@@ -124,7 +124,10 @@ body {
 }
 
 .filetag {
-  display: inline-block;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
   background: var(--accent-light);
   color: var(--accent);
   font-size: 0.85rem;
@@ -133,6 +136,15 @@ body {
   margin-bottom: 12px;
 }
 .filetag code { background: transparent; font-weight: 600; }
+.filetag-actions { display: inline-flex; gap: 10px; }
+.filetag-actions a {
+  color: var(--accent2);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+.filetag-actions a:hover { text-decoration: underline; }
 
 .comment {
   background: #fff8e6;

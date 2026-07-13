@@ -76,7 +76,39 @@ function table(headers, rows) {
     rows.map(r => `<tr>${r.map(c => `<td>${c}</td>`).join("")}</tr>`).join("")
   }</tbody></table></div>`;
 }
-function fileTag(name) { return `<div class="filetag">📄 Файл: <code>${name}</code></div>`; }
+const docMap = {
+  "2026 Observer Longline Logbook Instructions.pdf": "docs/2026-observer-longline-logbook-instructions.pdf",
+  "CCAMLR Scientific Observer Longline Vessel Cruise Report 2026.docx": "docs/ccamlr-scientific-observer-longline-vessel-cruise-report-2026.docx",
+  "CCAMLR Tag Overlap Statistic Calculator_v2026.xlsm": "docs/ccamlr-tag-overlap-statistic-calculator-v2026.xlsm",
+  "CCAMLR protocols for pinniped identification (1).docx": "docs/ccamlr-protocols-for-pinniped-identification-1.docx",
+  "CCAMLR_VME_guide_2023V2.pdf": "docs/ccamlr-vme-guide-2023v2.pdf",
+  "DIssostichis eleginoides gonad guide.docx": "docs/dissostichis-eleginoides-gonad-guide.docx",
+  "EN - C2 Longline Fisheries Commercial data manual 2025_1.pdf": "docs/en-c2-longline-fisheries-commercial-data-manual-2025-1.pdf",
+  "EN - Movement_10-04 Annex A.xlsx": "docs/en-movement-10-04-annex-a.xlsx",
+  "EN - Toothfish and Skate Tagging Manual 2025.docx": "docs/en-toothfish-and-skate-tagging-manual-2025.docx",
+  "EN - schedule 2025-26.pdf": "docs/en-schedule-2025-26.pdf",
+  "Easy Identification Keys for Grenadiers in 88.1 and 88.3_Sagndeok.pdf": "docs/easy-identification-keys-for-grenadiers-in-88-1-and-88-3-sagndeok.pdf",
+  "Fishes of the Ross Sea Region_A field guide to common species caught in the longline fishery (2015).pdf": "docs/fishes-of-the-ross-sea-region-a-field-guide-to-common-species-caught-in-the-longline-fishery-2015.pdf",
+  "Identification Guide for Toothfish (poster).pdf": "docs/identification-guide-for-toothfish-poster.pdf",
+  "Illustrated generic gear diagrams_2023 v1.3.docx": "docs/illustrated-generic-gear-diagrams-2023-v1-3.docx",
+  "SOUTHERN OCEAN whales and dolphins (ASOC poster).pdf": "docs/southern-ocean-whales-and-dolphins-asoc-poster.pdf",
+  "e-SISO Manual Finfish Fisheries 2026.pdf": "docs/e-siso-manual-finfish-fisheries-2026.pdf",
+  "e-pt10_4.pdf": "docs/e-pt10-4.pdf",
+  "e-pt1_3.pdf": "docs/e-pt1-3.pdf",
+  "e-tagging procedures-2020.docx": "docs/e-tagging-procedures-2020.docx",
+  "en_C2_2026a.xlsx": "docs/en-c2-2026a.xlsx",
+  "риба.doc": "docs/riba.doc"
+};
+function fileTag(name) {
+  const href = docMap[name];
+  if (!href) return `<div class="filetag">📄 Файл: <code>${name}</code></div>`;
+  return `<div class="filetag">📄 Файл: <code>${name}</code>
+    <span class="filetag-actions">
+      <a href="${href}" target="_blank" rel="noopener">↗ Відкрити</a>
+      <a href="${href}" download>⬇ Завантажити</a>
+    </span>
+  </div>`;
+}
 function img(src, caption, cls) {
   return `<figure class="${cls || ""}"><img src="${src}" loading="lazy" alt="${(caption||"").replace(/"/g,'')}"><figcaption>${caption || ""}</figcaption></figure>`;
 }
