@@ -109,6 +109,20 @@ body {
 .card li { margin-bottom: 6px; }
 .muted { color: var(--gray); font-size: 0.85em; }
 
+/* Bilingual original/translation blocks */
+.bilingual { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 14px 0 22px; }
+.bilingual-col { padding: 12px 16px; border-radius: 8px; font-size: 0.9rem; }
+.bilingual-col p { margin: 8px 0; }
+.bilingual-col ul, .bilingual-col ol { margin: 8px 0; padding-left: 22px; }
+.bilingual-en { background: #f4f4f4; border-left: 3px solid #9aa0a6; color: #3a3a3a; }
+.bilingual-ua { background: #eaf1f8; border-left: 3px solid var(--accent2); }
+.bilingual-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 700; margin-bottom: 8px; }
+.bilingual-en .bilingual-label { color: #6b7076; }
+.bilingual-ua .bilingual-label { color: var(--accent2); }
+@media (max-width: 900px) {
+  .bilingual { grid-template-columns: 1fr; }
+}
+
 .filetag {
   display: inline-block;
   background: var(--accent-light);
