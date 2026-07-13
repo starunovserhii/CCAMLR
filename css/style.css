@@ -179,6 +179,38 @@ figure.wide img { max-width: 100%; }
 .gallery.small-grid figcaption { font-size: 0.72rem; }
 .gallery.wide { grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); }
 
+/* Species cards (fish / pinnipeds / whales grid) */
+.species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin: 14px 0; }
+.species-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.species-card:hover { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transform: translateY(-2px); }
+.species-card-img { position: relative; width: 100%; aspect-ratio: 4 / 3; background: var(--accent-light); }
+.species-card-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.species-card-noimg { display: flex; align-items: center; justify-content: center; font-size: 2.4rem; }
+.species-card-body { padding: 10px 12px 12px; flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.species-code {
+  align-self: flex-start;
+  background: var(--accent);
+  color: #fff;
+  font-family: monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+  margin-bottom: 2px;
+}
+.species-ua { font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.25; }
+.species-latin { font-style: italic; font-size: 0.8rem; color: var(--accent2); }
+.species-note { font-size: 0.76rem; color: var(--gray); margin-top: 2px; line-height: 1.3; }
+
 .cheatsheet .card { padding: 16px 22px; }
 .cheatsheet .card h2 { font-size: 1.1rem; }
 .cheatsheet li { font-size: 0.92rem; }
