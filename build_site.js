@@ -671,15 +671,41 @@ const rossFrontMatter = {
   14: "Род. Liparidae/Zoarcidae — ознаки родини", 15: "Род. Liparidae/Zoarcidae — ознаки родини",
   16: "Род. Liparidae/Zoarcidae — ознаки родини", 17: "Род. Liparidae/Zoarcidae — ознаки родини"
 };
+// Page 58 (last page, "Quick key") contains 11 small representative photos, each originally
+// paired in the source PDF with a caption "Page N, <Family>" pointing to that family's full
+// treatment earlier in the guide. Per pdfimages -list, the real photos are at even num
+// (49,50,52,54,56,58,60,62,64,66,68); the odd num in between are transparency masks (smask,
+// no visual content) — three of these (num 53,55,61 -> ross_054/056/062.jpg) slipped past the
+// automatic blank-image filter during extraction and rendered as blank white tiles; they are
+// explicitly excluded below. Family names are assigned by visual match to the guide's own
+// family-diagnostic photos (rostrum/fin/barbel shape) since the PDF's 2-column "Quick key"
+// layout could not be parsed reliably into image order — hence "ймовірно" (probable), not certain.
+const rossQuickKeyFamilies = {
+  49: "Rajidae — справжні скати (сторінка 14 визначника)",
+  50: "Arhynchobatidae — м'якорилі скати (сторінка 15)",
+  52: "Zoarcidae — бельдюгові (сторінка 27)",
+  54: "Macrouridae — довгохвости (сторінка 19)",
+  56: "Muraenolepididae — мурени-тріскові (сторінка 18)",
+  58: "Liparidae — слизняки (сторінка 26)",
+  60: "Moridae — глибоководні тріскові (сторінка 24)",
+  62: "Nototheniidae — нототенієві (сторінка 28)",
+  64: "Artedidraconidae — бородаті плундерфіші (сторінка 37)",
+  66: "Bathydraconidae — антарктичні драконові риби (сторінка 38)",
+  68: "Channichthyidae — крокодилові крижані риби (сторінка 39)"
+};
+const rossQuickKeyBlanks = new Set([53, 55, 61]); // confirmed blank smask files that leaked past the extraction filter
+
 const rossGallery = [];
 const rossGalleryChart = [];
 for (let num = 0; num <= 69; num++) {
+  if (rossQuickKeyBlanks.has(num)) continue;
   const n = String(num + 1).padStart(3, "0");
   const p2 = `images/rossfish/ross_${n}.jpg`;
   if (!fs.existsSync(path.join(__dirname, p2))) continue;
   if (rossSpeciesByNum[num]) rossGallery.push([p2, rossSpeciesByNum[num]]);
   else if (rossFrontMatter[num]) rossGallery.push([p2, rossFrontMatter[num]]);
-  else if (num >= 49) rossGalleryChart.push([p2, "Швидкий ключ — порівняння схожих видів (фрагмент)"]);
+  else if (rossQuickKeyFamilies[num]) rossGalleryChart.push([p2, "Ймовірно: " + rossQuickKeyFamilies[num]]);
+  else if (num >= 49) rossGalleryChart.push([p2, "Швидкий ключ — фрагмент (родину визначити не вдалося)"]);
 }
 
 const page06 = section("toothfish-id", "6.1 Identification Guide for Toothfish — офіційний постер", `
@@ -731,9 +757,10 @@ section("rossfish", "6.5 Fishes of the Ross Sea Region — польовий ви
   ${h3("Фотогалерея видів з точною ідентифікацією (" + (rossGallery.length - 16) + " видів)")}
   ${p("Кожне фото зіставлено з назвою виду за номером сторінки оригіналу документа (перевірено посторінковим зіставленням тексту й вбудованих зображень PDF).")}
   ${gallery(rossGallery.slice(16), "small-grid")}
-  ${h3("Швидкий ключ — порівняння схожих видів (сторінка 58 оригіналу)")}
+  ${h3("«Quick key» — фотопокажчик родин за сторінками (сторінка 58 з 58, остання сторінка визначника)")}
+  ${p("В оригіналі це не порівняльна таблиця, а фотопокажчик: невелике фото-мініатюра кожної з 11 родин з підписом «Page N, Family» — швидкий спосіб знайти потрібний розділ визначника за зовнішнім виглядом риби.")}
   ${gallery(rossGalleryChart, "small-grid")}
-  ${comment("На відміну від попередньої версії сайту, фото тепер підписані конкретними видовими назвами — зіставлення зроблено через技 pdfimages -list (номер сторінки кожного зображення) та посторінковий текст визначника. Під час цієї звірки також знайдено джерело коду <strong>ELZ</strong> з файлу риба.doc: це офіційний код родини Zoarcidae (бельдюгові) саме з цього визначника — розділ 6.6 нижче оновлено.")}
+  ${comment("Родину для кожного фрагмента визначено візуально (форма писка, плавців, наявність борідки) за зразком із самого визначника, оскільки текстовий шар PDF для цієї двоколонкової сторінки не зберігає однозначного порядку зображень — тому підписи позначені як «Ймовірно», а не стверджуються напевно. Також під час цієї звірки виявлено й виправлено технічний дефект: 3 «порожні» зображення (прозорі маски з PDF без власного вмісту) помилково потрапляли до галереї як білі плитки — тепер вони виключені. Ця сама звірка раніше допомогла знайти джерело коду <strong>ELZ</strong> з файлу риба.doc — офіційний код родини Zoarcidae саме з цього визначника (розділ 6.6).")}
 `) +
 section("riba", "6.6 Довідка з фотографіями видів і кодами (риба.doc)", `
   ${fileTag("риба.doc")}
