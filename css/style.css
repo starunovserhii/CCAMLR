@@ -193,6 +193,7 @@ figure.wide img { max-width: 100%; }
   .nav-toggle { display: block; }
   .content { padding: 70px 16px 40px; }
   .page-title { font-size: 1.5rem; }
+  .search-results { width: 240px; max-width: 85vw; }
 }
 
 @media print {
