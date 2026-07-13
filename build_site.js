@@ -55,6 +55,7 @@ function layout(title, active, bodyHtml, opts) {
     </footer>
   </main>
 </div>
+${speciesModalHtml}
 <script src="js/search-index.js"></script>
 <script src="js/script.js"></script>
 </body>
@@ -122,11 +123,20 @@ function bilingual(enHtml, uaHtml) {
     <div class="bilingual-col bilingual-ua"><div class="bilingual-label">UA — переклад</div>${uaHtml}</div>
   </div>`;
 }
+function escAttr(s) {
+  return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 function speciesCard(c) {
   const imgHtml = c.img
     ? `<div class="species-card-img"><img src="${c.img}" loading="lazy" alt="${(c.ua||"").replace(/"/g,'')}"></div>`
     : `<div class="species-card-img species-card-noimg">${c.icon || "🐟"}</div>`;
-  return `<div class="species-card">
+  return `<div class="species-card" tabindex="0" role="button"
+      data-img="${escAttr(c.img || "")}"
+      data-icon="${escAttr(c.icon || "🐟")}"
+      data-code="${escAttr(c.code || "")}"
+      data-ua="${escAttr(c.ua)}"
+      data-latin="${escAttr(c.latin)}"
+      data-note="${escAttr(c.note || "")}">
     ${imgHtml}
     <div class="species-card-body">
       ${c.code ? `<span class="species-code">${c.code}</span>` : ""}
@@ -139,6 +149,18 @@ function speciesCard(c) {
 function speciesGrid(cards) {
   return `<div class="species-grid">${cards.map(speciesCard).join("")}</div>`;
 }
+const speciesModalHtml = `<div class="species-modal-overlay" id="speciesModalOverlay">
+  <div class="species-modal" role="dialog" aria-modal="true" aria-labelledby="speciesModalUa">
+    <button class="species-modal-close" id="speciesModalClose" aria-label="Закрити">✕</button>
+    <div id="speciesModalImgWrap"></div>
+    <div class="species-modal-body">
+      <span class="species-modal-code" id="speciesModalCode" style="display:none;"></span>
+      <div class="species-modal-ua" id="speciesModalUa"></div>
+      <div class="species-modal-latin" id="speciesModalLatin"></div>
+      <div class="species-modal-note" id="speciesModalNote"></div>
+    </div>
+  </div>
+</div>`;
 
 // =====================================================================
 // PAGE: INDEX

@@ -11,6 +11,68 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Species card modal (lightbox with enlarged photo + full description)
+  var speciesOverlay = document.getElementById("speciesModalOverlay");
+  if (speciesOverlay) {
+    var modalImgWrap = document.getElementById("speciesModalImgWrap");
+    var modalCode = document.getElementById("speciesModalCode");
+    var modalUa = document.getElementById("speciesModalUa");
+    var modalLatin = document.getElementById("speciesModalLatin");
+    var modalNote = document.getElementById("speciesModalNote");
+    var modalClose = document.getElementById("speciesModalClose");
+    var lastFocused = null;
+
+    function openSpeciesModal(card) {
+      var img = card.getAttribute("data-img");
+      var icon = card.getAttribute("data-icon") || "🐟";
+      var code = card.getAttribute("data-code");
+      var ua = card.getAttribute("data-ua");
+      var latin = card.getAttribute("data-latin");
+      var note = card.getAttribute("data-note");
+
+      if (img) {
+        modalImgWrap.innerHTML = '<div class="species-modal-img"><img src="' + img + '" alt="' + ua.replace(/"/g, "") + '"></div>';
+      } else {
+        modalImgWrap.innerHTML = '<div class="species-modal-img species-modal-noimg">' + icon + '</div>';
+      }
+      if (code) {
+        modalCode.textContent = code;
+        modalCode.style.display = "inline-block";
+      } else {
+        modalCode.style.display = "none";
+      }
+      modalUa.textContent = ua || "";
+      modalLatin.textContent = latin || "";
+      modalNote.textContent = note || "";
+
+      lastFocused = document.activeElement;
+      speciesOverlay.classList.add("open");
+      modalClose.focus();
+    }
+
+    function closeSpeciesModal() {
+      speciesOverlay.classList.remove("open");
+      if (lastFocused && lastFocused.focus) lastFocused.focus();
+    }
+
+    document.querySelectorAll(".species-card").forEach(function (card) {
+      card.addEventListener("click", function () { openSpeciesModal(card); });
+      card.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openSpeciesModal(card);
+        }
+      });
+    });
+    modalClose.addEventListener("click", closeSpeciesModal);
+    speciesOverlay.addEventListener("click", function (e) {
+      if (e.target === speciesOverlay) closeSpeciesModal();
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape" && speciesOverlay.classList.contains("open")) closeSpeciesModal();
+    });
+  }
+
   // Site search (uses SEARCH_INDEX from js/search-index.js)
   var searchInput = document.getElementById("siteSearch");
   var searchResults = document.getElementById("searchResults");
