@@ -31,6 +31,7 @@ function layout(title, active, bodyHtml, opts) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title} — Підготовка CCAMLR SISO</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐟</text></svg>">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -819,6 +820,13 @@ section("whales", "6.8 SOUTHERN OCEAN whales and dolphins — постер ASOC"
   ${fileTag("SOUTHERN OCEAN whales and dolphins (ASOC poster).pdf")}
   ${gallery([["images/whales_poster/wp_p-1.jpg","Постер ASOC: види китоподібних Південного океану, сторінка 1"],["images/whales_poster/wp_p-2.jpg","Постер ASOC: продовження визначника та загрози, сторінка 2"]], "wide")}
   ${table(["Вид","Наукова назва","Довжина"], whaleSpecies)}
+  ${h3("Три типи антарктичної косатки (Orcinus orca) — різний раціон")}
+  ${table(["Тип","Розмір (самці)","Основний раціон"], [
+    ["Тип A","до 9,8 м","Переважно малі смугачі (мінке-кити)"],
+    ["Тип B","до 7,2 м","Тюлені"],
+    ["Тип C","до 6,1 м","Риба"]
+  ])}
+  ${p("Типи різняться також морфологічно (форма й розмір «плями» навколо ока, форма спинної «накидки»).")}
   ${p("<strong>Загрози Південного океану</strong> (за постером): китобійний промисел, зміна клімату, заплутування у знаряддях лову, забруднення, деградація середовища існування, зменшення кормової бази, зіткнення із суднами, антропогенне занепокоєння, морське сміття.")}
   ${comment("Видавець — Antarctic and Southern Ocean Coalition (ASOC), природоохоронна організація (не CCAMLR) — просвітницький, а не нормативний матеріал.")}
 `);
