@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Знаряддя лова — Підготовка CCAMLR SISO</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<button id="navToggle" class="nav-toggle" aria-label="Меню">☰</button>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">🐟 CCAMLR&nbsp;SISO<br><span>Підготовка до іспиту</span></div>
+    <div class="search-box">
+      <input type="text" id="siteSearch" placeholder="Пошук по сайту…" autocomplete="off">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+    <a href="index.html" class="navlink">Головна</a>
+<a href="01-governing.html" class="navlink">1. Керівні документи</a>
+<a href="02-measures.html" class="navlink">2. Заходи зі збереження</a>
+<a href="03-forms-main.html" class="navlink">3. Форми головні</a>
+<a href="04-forms-instructions.html" class="navlink">4. Форми та інструкції</a>
+<a href="05-gear.html" class="navlink active">5. Знаряддя лова</a>
+<a href="06-identification.html" class="navlink">6. Визначники</a>
+<a href="07-vme.html" class="navlink">7. VME</a>
+<a href="08-tagging.html" class="navlink">8. Мічення (Tagging)</a>
+<a href="11-templates.html" class="navlink">Заповнення журналів</a>
+<a href="09-cheatsheet.html" class="navlink">Шпаргалка</a>
+<a href="10-test.html" class="navlink">Самоперевірка (тест)</a>
+    <div class="sidebar-footer">Сезон 2025/26<br>Сайт підготовлено 13.07.2026</div>
+  </nav>
+  <main class="content">
+    <h1 class="page-title">Знаряддя лова</h1>
+    <section id="gear-note" class="card">
+    <h2>Технічна примітка щодо зображень</h2>
+    
+  <div class="filetag">📄 Файл: <code>Illustrated generic gear diagrams_2023 v1.3.docx</code></div>
+  <div class="comment"><strong>Коментар:</strong> Оригінальні схеми знарядь у цьому файлі побудовані як векторні «полотна» Word (сітчасті текстури, накладені на векторні контури). Було випробувано два незалежні способи вилучення: (1) пряме вилучення вбудованих зображень і повна конвертація сторінок у зображення через LibreOffice — відтворюють лише текстуру-сітку без контурів; (2) повторна спроба через експорт у SVG та PNG (фільтр «draw_png_Export») — обидва завершилися помилкою рендерера LibreOffice (SfxBaseModel::impl_store … 0xc10) саме на цих фігурах. Це підтверджена межа можливостей доступних інструментів, а не втрата даних: векторні дані (~1 МБ) фізично присутні у файлі document.xml, просто жоден наявний рендерер не може їх коректно відобразити. Тому нижче наведено повний перелік знарядь <strong>у структурованому текстовому вигляді</strong>, як зазначено в документі. Якщо потрібні саме оригінальні схеми — рекомендую відкрити файл безпосередньо в Microsoft Word.</div>
+
+  </section><section id="gear-types" class="card">
+    <h2>5.1 Типи знарядь лова</h2>
+    
+  <h3>Трали</h3>
+  <ul><li><strong>Trawl: midwater beam</strong> — пелагічний беам-трал (загальна довжина сітки вказується окремо; ілюструється одна з двох сіток).</li><li><strong>Trawl: midwater otter</strong> — пелагічний отер-трал.</li></ul>
+  <h3>Ярусна снасть (Longline)</h3>
+  <ul><li><strong>Autoline</strong> — донний ярус з одинарною обваженою головною лінією, гачки на коротких повідцях (снудах), наживлюються механічно під час постановки.</li><li><strong>Spanish line (іспанська снасть / подвійна лінія)</strong> — донний ярус, де до головної лінії приєднана додаткова станова лінія.</li><li><strong>Trotline (тротлайн)</strong> — донний ярус, де кластери наживлених гачків прикріплені до плавучої головної лінії через троти (відгалуження, дропер-лінії).</li></ul>
+  <p>Окремо документ описує альтернативне маркування ліній для роботи в льодових умовах та розташування радіомаяка/пристрою відстеження позиції (опціонально) і поверхневих поплавців/буїв.</p>
+  <h3>Пастки (Pot)</h3>
+  <ul><li><strong>Beehive configuration</strong> («вулик») — можлива альтернативна конфігурація з входом у передній панелі (замість верхньої) та підвішеною до даху приманкою-мішком (замість розміщеної на дні пастки).</li><li><strong>Rectangular configuration</strong> — прямокутна конфігурація пастки.</li></ul>
+  <h3>Пристрої виключення морських ссавців (Exclusion Device)</h3>
+  <ul><li><strong>Mesh panel</strong> — сітчаста панель.</li><li><strong>Grid</strong> — решітка.</li><li>Для кожного типу знаряддя при нотифікації зазвичай обирається один тип пристрою виключення (тюленевий, китовий або інший); Члени CCAMLR повинні вказувати деталі кожного використаного пристрою виключення морських ссавців.</li></ul>
+  <p><em>Примітка документа:</em> синій текст на офіційних схемах позначає поле, для якого існує відповідна специфікація знаряддя на сайті суден CCAMLR.</p>
+  <div class="comment"><strong>Коментар:</strong> Звіряння фактичного знаряддя судна з цими типовими схемами та з полями нотифікації на сайті CCAMLR прямо вимагається в розділі «Fishing Operations» звіту про рейс (див. розділ 3.2).</div>
+
+  </section>
+    <footer class="page-footer">
+      <p>Сайт створено на основі 21 офіційного та довідкового документа CCAMLR/SISO, наданих для підготовки до семінару та іспиту. Усі коментарі позначені як <strong>Коментар</strong> є авторськими примітками і не є офіційною позицією CCAMLR.</p>
+    </footer>
+  </main>
+</div>
+<script src="js/search-index.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>
