@@ -8,7 +8,28 @@
   --bg: #f7f9fb;
   --ok: #2e7d32;
   --bad: #c62828;
+  --card-bg: #fff;
 }
+html[data-theme="dark"] {
+  --accent: #4a8fd6;
+  --accent-light: #16324d;
+  --accent2: #6fb3e0;
+  --text: #e6e9ec;
+  --gray: #a9b3bc;
+  --border: #2c3a47;
+  --bg: #101820;
+  --ok: #5fbf6e;
+  --bad: #ef6a6a;
+  --card-bg: #182531;
+}
+html[data-theme="dark"] .filetag,
+html[data-theme="dark"] .species-code,
+html[data-theme="dark"] .search-result-page { color: #fff; }
+html[data-theme="dark"] figure img,
+html[data-theme="dark"] .species-card-img,
+html[data-theme="dark"] .species-modal-img { background: #0c1219; }
+html[data-theme="dark"] .comment { background: #3a2f0a; color: #f0e0a8; }
+html[data-theme="dark"] .comment strong { color: #ffd76b; }
 * { box-sizing: border-box; }
 body {
   margin: 0;
@@ -16,6 +37,7 @@ body {
   color: var(--text);
   background: var(--bg);
   line-height: 1.55;
+  transition: background 0.2s, color 0.2s;
 }
 .layout { display: flex; min-height: 100vh; }
 
@@ -44,7 +66,42 @@ body {
 }
 .navlink:hover { background: rgba(255,255,255,0.12); }
 .navlink.active { background: #fff; color: var(--accent); font-weight: 600; }
-.sidebar-footer { margin-top: 26px; font-size: 0.75rem; opacity: 0.7; border-top: 1px solid rgba(255,255,255,0.25); padding-top: 10px; }
+.theme-toggle {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 9px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(255,255,255,0.1);
+  color: #eaf1f8;
+  font-size: 0.88rem;
+  cursor: pointer;
+  text-align: left;
+}
+.theme-toggle:hover { background: rgba(255,255,255,0.2); }
+.sidebar-footer { margin-top: 14px; font-size: 0.75rem; opacity: 0.7; border-top: 1px solid rgba(255,255,255,0.25); padding-top: 10px; }
+
+/* Back-to-top floating button */
+.back-to-top {
+  display: none;
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.25);
+  z-index: 150;
+}
+.back-to-top.visible { display: block; }
+.back-to-top:hover { background: var(--accent2); }
+@media print { .back-to-top, .theme-toggle { display: none !important; } }
 
 /* Search */
 .search-box { position: relative; margin-bottom: 16px; }
@@ -69,7 +126,7 @@ body {
   max-width: 80vw;
   max-height: 60vh;
   overflow-y: auto;
-  background: #fff;
+  background: var(--card-bg);
   color: var(--text);
   border-radius: 8px;
   box-shadow: 0 6px 24px rgba(0,0,0,0.35);
@@ -94,8 +151,19 @@ body {
 .content { flex: 1; padding: 34px 42px 60px; max-width: 1100px; }
 .page-title { color: var(--accent); font-size: 1.9rem; margin-bottom: 22px; border-bottom: 3px solid var(--accent2); padding-bottom: 10px; }
 
+.countdown-widget {
+  display: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 12px 18px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+}
+
 .card {
-  background: #fff;
+  background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   padding: 22px 26px;
@@ -182,7 +250,7 @@ figure.wide img { max-width: 100%; }
 /* Species cards (fish / pinnipeds / whales grid) */
 .species-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; margin: 14px 0; }
 .species-card {
-  background: #fff;
+  background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: 10px;
   overflow: hidden;
@@ -237,7 +305,7 @@ figure.wide img { max-width: 100%; }
 }
 .species-modal-overlay.open { display: flex; }
 .species-modal {
-  background: #fff;
+  background: var(--card-bg);
   border-radius: 12px;
   max-width: 640px;
   width: 100%;
@@ -297,7 +365,16 @@ figure.wide img { max-width: 100%; }
 }
 
 /* Quiz */
-.quiz-controls { display: flex; align-items: center; gap: 14px; margin: 12px 0; }
+.quiz-last-result {
+  background: var(--accent-light);
+  color: var(--accent);
+  font-size: 0.9rem;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin: 10px 0;
+}
+.quiz-controls { display: flex; align-items: center; gap: 14px; margin: 12px 0; flex-wrap: wrap; }
 .btn {
   background: var(--accent); color: #fff; border: none; padding: 10px 20px;
   border-radius: 6px; font-size: 0.95rem; cursor: pointer; font-weight: 600;

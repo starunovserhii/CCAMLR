@@ -21,19 +21,32 @@ const NAV = [
   ["10-test.html", "Самоперевірка (тест)"]
 ];
 
+const SITE_DESCRIPTION_DEFAULT = "Український сайт підготовки до іспиту CCAMLR SISO (сезон 2025/26): повний виклад керівних документів, заходів зі збереження, форм спостерігача, визначників видів, VME та протоколів мічення.";
+
 function layout(title, active, bodyHtml, opts) {
   opts = opts || {};
   const navHtml = NAV.map(([href, label]) =>
     `<a href="${href}" class="navlink${href === active ? " active" : ""}">${label}</a>`
   ).join("\n");
+  const pageDescription = opts.description || SITE_DESCRIPTION_DEFAULT;
+  const canonicalUrl = "https://starunovserhii.github.io/CCAMLR/" + active;
   return `<!DOCTYPE html>
 <html lang="uk">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>${title} — Підготовка CCAMLR SISO</title>
+<meta name="description" content="${escAttr(pageDescription)}">
+<link rel="canonical" href="${canonicalUrl}">
+<meta property="og:type" content="website">
+<meta property="og:title" content="${escAttr(title)} — Підготовка CCAMLR SISO">
+<meta property="og:description" content="${escAttr(pageDescription)}">
+<meta property="og:url" content="${canonicalUrl}">
+<meta name="theme-color" content="#1F4E79">
+<link rel="manifest" href="manifest.json">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐟</text></svg>">
 <link rel="stylesheet" href="css/style.css">
+<script>(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();</script>
 </head>
 <body>
 <button id="navToggle" class="nav-toggle" aria-label="Меню">☰</button>
@@ -45,6 +58,7 @@ function layout(title, active, bodyHtml, opts) {
       <div id="searchResults" class="search-results"></div>
     </div>
     ${navHtml}
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Перемкнути темну тему">🌙 Темна тема</button>
     <div class="sidebar-footer">Сезон 2025/26<br>Сайт підготовлено 13.07.2026</div>
   </nav>
   <main class="content">
@@ -56,8 +70,10 @@ function layout(title, active, bodyHtml, opts) {
   </main>
 </div>
 ${speciesModalHtml}
+<button id="backToTop" class="back-to-top" type="button" aria-label="Нагору">↑</button>
 <script src="js/search-index.js"></script>
 <script src="js/script.js"></script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
 </body>
 </html>`;
 }
@@ -208,6 +224,7 @@ const categoryMap = [
 
 const indexBody = `
 ${section("intro", "Ласкаво просимо", `
+<div id="examCountdown" class="countdown-widget" data-dates='[["2026-07-20","Семінару 1"],["2026-07-27","Семінару 2"],["2026-08-15","ІСПИТУ"]]'></div>
 ${p("Цей сайт створено як єдине джерело для самостійної підготовки до іспиту SISO CCAMLR (сезон 2025/26). Він об'єднує <strong>повний текстовий і візуальний зміст усіх 21 наданого документа</strong> — конвенцію, заходи зі збереження, форми спостерігача, інструкції, визначники видів, протоколи мічення та довідник ВМЕ — структурований у 8 тематичних розділів, за якими організовано сам семінар.")}
 ${p("Заплановано два семінари у форматі відеоконференції та іспит. Перший семінар — <strong>20 та 21 липня, 11:00–15:00</strong>. Другий семінар — <strong>27 та 28 липня, 11:00–15:00</strong>; до нього приєднається український координатор CCAMLR <strong>Ілля Сліпко</strong> для відповідей на запитання. Іспит буде призначено <strong>не пізніше 15 серпня</strong>. План попередній і може коригуватися.")}
 ${comment("За кілька годин семінарів неможливо викласти весь матеріал — основне навантаження припадає на самостійну підготовку. Розклад нижче синхронізує читання розділів сайту з датами семінарів, щоб ви приходили на кожен з уже сформованими питаннями.")}
@@ -1587,9 +1604,12 @@ const allQuestions = Object.values(questions).flat();
 const page10 = `
 ${section("quiz-intro", "Самоперевірка — 80 питань", `
 ${p("Оберіть відповідь для кожного питання і натисніть «Перевірити результат» унизу сторінки. Питання згруповано за тими самими 8 розділами семінару.")}
+<div id="quizLastResult" class="quiz-last-result" style="display:none;"></div>
 <div class="quiz-controls">
   <button id="quizSubmit" class="btn">Перевірити результат</button>
   <button id="quizReset" class="btn btn-secondary">Скинути</button>
+  <button id="quizReviewMistakes" class="btn btn-secondary" style="display:none;">Повторити лише помилки</button>
+  <button id="quizShowAll" class="btn btn-secondary" style="display:none;">Показати всі питання</button>
   <span id="quizScore" class="quiz-score"></span>
 </div>
 `)}

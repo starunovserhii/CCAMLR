@@ -11,6 +11,71 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Homepage countdown to the nearest upcoming seminar/exam date
+  var countdownEl = document.getElementById("examCountdown");
+  if (countdownEl) {
+    try {
+      var dates = JSON.parse(countdownEl.getAttribute("data-dates"));
+      var now = new Date();
+      var upcoming = null;
+      for (var i = 0; i < dates.length; i++) {
+        var target = new Date(dates[i][0] + "T00:00:00");
+        if (target >= new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+          upcoming = { date: target, label: dates[i][1] };
+          break;
+        }
+      }
+      if (upcoming) {
+        var msPerDay = 24 * 60 * 60 * 1000;
+        var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        var daysLeft = Math.round((upcoming.date - today) / msPerDay);
+        var dateStr = upcoming.date.toLocaleDateString("uk-UA", { day: "numeric", month: "long" });
+        var text;
+        if (daysLeft === 0) text = "Сьогодні день " + upcoming.label + "!";
+        else if (daysLeft === 1) text = "Залишився 1 день до " + upcoming.label + " (" + dateStr + ")";
+        else text = "Залишилось " + daysLeft + " дн. до " + upcoming.label + " (" + dateStr + ")";
+        countdownEl.textContent = "⏳ " + text;
+        countdownEl.style.display = "block";
+      } else {
+        countdownEl.style.display = "none";
+      }
+    } catch (e) { countdownEl.style.display = "none"; }
+  }
+
+  // Dark theme toggle (persisted in localStorage; initial state already
+  // applied pre-paint by the inline script in <head> to avoid a flash).
+  var themeBtn = document.getElementById("themeToggle");
+  function refreshThemeLabel() {
+    var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+    if (themeBtn) themeBtn.textContent = isDark ? "☀️ Світла тема" : "🌙 Темна тема";
+  }
+  if (themeBtn) {
+    refreshThemeLabel();
+    themeBtn.addEventListener("click", function () {
+      var isDark = document.documentElement.getAttribute("data-theme") === "dark";
+      if (isDark) {
+        document.documentElement.removeAttribute("data-theme");
+        try { localStorage.setItem("theme", "light"); } catch (e) {}
+      } else {
+        document.documentElement.setAttribute("data-theme", "dark");
+        try { localStorage.setItem("theme", "dark"); } catch (e) {}
+      }
+      refreshThemeLabel();
+    });
+  }
+
+  // Back-to-top floating button
+  var backToTop = document.getElementById("backToTop");
+  if (backToTop) {
+    window.addEventListener("scroll", function () {
+      if (window.scrollY > 500) backToTop.classList.add("visible");
+      else backToTop.classList.remove("visible");
+    });
+    backToTop.addEventListener("click", function () {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+
   // Species card modal (lightbox with enlarged photo + full description)
   var speciesOverlay = document.getElementById("speciesModalOverlay");
   if (speciesOverlay) {
@@ -149,11 +214,21 @@ document.addEventListener("DOMContentLoaded", function () {
   var form = document.getElementById("quizForm");
   if (!form) return;
 
+  var QUIZ_KEY = "ccamlr_quiz_last_result";
+
+  function loadQuizHistory() {
+    try { return JSON.parse(localStorage.getItem(QUIZ_KEY) || "null"); } catch (e) { return null; }
+  }
+  function saveQuizHistory(data) {
+    try { localStorage.setItem(QUIZ_KEY, JSON.stringify(data)); } catch (e) {}
+  }
+
   function gradeQuiz() {
     var qs = document.querySelectorAll(".quiz-q");
     var total = qs.length;
     var correctCount = 0;
     var unanswered = 0;
+    var wrongNums = [];
     qs.forEach(function (qEl) {
       var qnum = qEl.getAttribute("data-qnum");
       var correct = qEl.getAttribute("data-correct");
@@ -162,6 +237,7 @@ document.addEventListener("DOMContentLoaded", function () {
       qEl.classList.remove("correct", "incorrect");
       if (!selected) {
         unanswered++;
+        wrongNums.push(qnum);
         feedback.textContent = "Питання без відповіді.";
         feedback.className = "quiz-feedback";
         return;
@@ -173,6 +249,7 @@ document.addEventListener("DOMContentLoaded", function () {
         feedback.className = "quiz-feedback ok";
       } else {
         qEl.classList.add("incorrect");
+        wrongNums.push(qnum);
         var correctLabel = String.fromCharCode(65 + parseInt(correct, 10));
         feedback.textContent = "✗ Неправильно. Правильна відповідь: " + correctLabel;
         feedback.className = "quiz-feedback bad";
@@ -183,6 +260,48 @@ document.addEventListener("DOMContentLoaded", function () {
       (unanswered ? " — не відповіли на " + unanswered + " питань" : "");
     document.getElementById("quizScore").textContent = msg;
     document.getElementById("quizScore2").textContent = msg;
+
+    saveQuizHistory({ correct: correctCount, total: total, wrong: wrongNums, date: new Date().toISOString() });
+    updateLastResultBanner();
+    updateReviewButtons(wrongNums);
+  }
+
+  function updateLastResultBanner() {
+    var banner = document.getElementById("quizLastResult");
+    var hist = loadQuizHistory();
+    if (!banner || !hist) return;
+    var d = new Date(hist.date);
+    var dateStr = d.toLocaleDateString("uk-UA") + " " + d.toLocaleTimeString("uk-UA", { hour: "2-digit", minute: "2-digit" });
+    var pct = Math.round((hist.correct / hist.total) * 100);
+    banner.textContent = "Останній результат: " + hist.correct + " / " + hist.total + " (" + pct + "%), пройдено " + dateStr;
+    banner.style.display = "block";
+  }
+
+  function updateReviewButtons(wrongNums) {
+    var reviewBtn = document.getElementById("quizReviewMistakes");
+    var showAllBtn = document.getElementById("quizShowAll");
+    if (!reviewBtn) return;
+    if (wrongNums && wrongNums.length > 0) {
+      reviewBtn.style.display = "inline-block";
+      reviewBtn.textContent = "Повторити лише помилки (" + wrongNums.length + ")";
+    } else {
+      reviewBtn.style.display = "none";
+    }
+    showAllBtn.style.display = "none";
+  }
+
+  function filterToQuestions(nums) {
+    var numSet = nums ? new Set(nums) : null;
+    document.querySelectorAll(".quiz-q").forEach(function (qEl) {
+      var qnum = qEl.getAttribute("data-qnum");
+      var show = !numSet || numSet.has(qnum);
+      qEl.style.display = show ? "" : "none";
+    });
+    // hide whole section cards if every question inside is hidden
+    document.querySelectorAll("#quizForm > section.card").forEach(function (sec) {
+      var visible = Array.prototype.some.call(sec.querySelectorAll(".quiz-q"), function (q) { return q.style.display !== "none"; });
+      sec.style.display = visible ? "" : "none";
+    });
   }
 
   document.getElementById("quizSubmit").addEventListener("click", function (e) {
@@ -203,5 +322,34 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById("quizScore").textContent = "";
     document.getElementById("quizScore2").textContent = "";
+    filterToQuestions(null);
+    document.getElementById("quizShowAll").style.display = "none";
+    var hist = loadQuizHistory();
+    updateReviewButtons(hist ? hist.wrong : null);
   });
+  document.getElementById("quizReviewMistakes").addEventListener("click", function (e) {
+    e.preventDefault();
+    var hist = loadQuizHistory();
+    if (!hist || !hist.wrong || !hist.wrong.length) return;
+    filterToQuestions(hist.wrong);
+    document.getElementById("quizReviewMistakes").style.display = "none";
+    document.getElementById("quizShowAll").style.display = "inline-block";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+  document.getElementById("quizShowAll").addEventListener("click", function (e) {
+    e.preventDefault();
+    filterToQuestions(null);
+    document.getElementById("quizShowAll").style.display = "none";
+    var hist = loadQuizHistory();
+    updateReviewButtons(hist ? hist.wrong : null);
+  });
+
+  // Restore last-result banner and review-mistakes availability on page load
+  (function initQuizFromHistory() {
+    var hist = loadQuizHistory();
+    if (hist) {
+      updateLastResultBanner();
+      updateReviewButtons(hist.wrong);
+    }
+  })();
 });
