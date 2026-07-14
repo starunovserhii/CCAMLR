@@ -1832,19 +1832,20 @@ const flashTerms = [
   ...glossaryForms.map(([en, pron, ua, def]) => ({ front: en + "<br><span class=\"flash-pron\">" + pron + "</span>", back: "<strong>" + ua + "</strong><br>" + def })),
   ...glossaryAbbr.map(([abbr, pron, full, def]) => ({ front: abbr + "<br><span class=\"flash-pron\">" + pron + "</span>", back: "<strong>" + full + "</strong><br>" + def })),
   ...glossaryBio.map(([en, pron, ua, def]) => ({ front: en + "<br><span class=\"flash-pron\">" + pron + "</span>", back: "<strong>" + ua + "</strong><br>" + def }))
-];
+].map((c, i) => ({ ...c, id: "t" + i }));
 
 const flashCodes = [
   ...speciesCodesCurated.map(([code, latin, ua]) => ({ front: code, back: "<em>" + latin + "</em><br>" + ua })),
   ...pinnipedSpecies.filter(r => r[2] && r[2] !== "—").map(([ua, latin, code]) => ({ front: code, back: "<em>" + latin + "</em><br>" + ua }))
-];
+].map((c, i) => ({ ...c, id: "c" + i }));
 
 const page15 = section("flash-intro", "Флеш-картки", `
-  ${p("Швидкий режим повторення: натисніть на картку, щоб побачити відповідь, і рухайтесь далі кнопками. Оберіть колоду вище — терміни глосарію або видові коди.")}
+  ${p("Швидкий режим повторення: натисніть на картку, щоб побачити відповідь, і рухайтесь далі кнопками. Оберіть колоду вище — терміни глосарію, видові коди або власноруч позначені «важкі» картки.")}
   <div id=\"flashApp\" class=\"flashcards\">
     <div class=\"flash-tabs\">
       <button class=\"flash-tab active\" data-deck=\"terms\" type=\"button\">Терміни (${flashTerms.length})</button>
       <button class=\"flash-tab\" data-deck=\"codes\" type=\"button\">Коди видів (${flashCodes.length})</button>
+      <button class=\"flash-tab\" data-deck=\"hard\" id=\"flashHardTab\" type=\"button\">★ Важкі (0)</button>
     </div>
     <div class=\"flash-progress\" id=\"flashProgress\">1 / ${flashTerms.length}</div>
     <div class=\"flashcard\" id=\"flashCard\" tabindex=\"0\" role=\"button\" aria-label=\"Натисніть, щоб перевернути картку\">
@@ -1857,12 +1858,13 @@ const page15 = section("flash-intro", "Флеш-картки", `
       <button id=\"flashNext\" class=\"btn btn-secondary\" type=\"button\">Далі →</button>
     </div>
     <div class=\"flash-controls\">
+      <button id=\"flashHardToggle\" class=\"btn btn-star\" type=\"button\">☆ Позначити важкою</button>
       <button id=\"flashShuffle\" class=\"btn btn-secondary\" type=\"button\">🔀 Перемішати</button>
       <button id=\"flashRestart\" class=\"btn btn-secondary\" type=\"button\">↺ Спочатку</button>
     </div>
   </div>
   <script type=\"application/json\" id=\"flashData\">${JSON.stringify({ terms: flashTerms, codes: flashCodes })}</script>
-  ${comment("Колода «Терміни» складена з розділу «Глосарій термінів», колода «Коди видів» — з видових кодів, використаних у розділах 3.1, 6.6 і 6.7 сайту.")}
+  ${comment("Колода «Терміни» складена з розділу «Глосарій термінів», колода «Коди видів» — з видових кодів, використаних у розділах 3.1, 6.6 і 6.7 сайту. Колода «★ Важкі» — картки, позначені зіркою під час повторення; список зберігається лише у вашому браузері.")}
 `);
 
 // =====================================================================
@@ -1939,6 +1941,7 @@ const page16 = section("checklist-intro", "Чек-лист підготовки 
 
 const page09 = `
 <div class="cheatsheet">
+<button id="cheatsheetPrint" class="btn" type="button" style="margin-bottom:16px;">🖨 Зберегти як PDF / Друкувати</button>
 ${section("cs1", "1. Керівні документи", ul([
   "<strong>Конвенція</strong> — 33 статті; дія — на південь від 60° пд.ш. та між цією широтою й Антарктичною конвергенцією; штаб-квартира — Хобарт; 4 офіційні мови; ст. IX — функції Комісії, ст. XXIV — основа SISO.",
   "<strong>Схема SISO</strong> — розділи A–H; Додаток I — 11 завдань спостерігача; Додаток II — надзвичайні ситуації; звіти подавати протягом 1 місяця після рейсу.",
@@ -2100,6 +2103,34 @@ const page10 = `
 ${section("quiz-intro", "Самоперевірка — 80 питань", `
 ${p("Оберіть відповідь для кожного питання і натисніть «Перевірити результат» унизу сторінки. Питання згруповано за тими самими 8 розділами семінару.")}
 <div id="quizLastResult" class="quiz-last-result" style="display:none;"></div>
+<div class="exam-panel" id="examPanel">
+  <h3 style="margin-top:0;">Режим екзамену</h3>
+  <p class="muted" style="margin-top:0;">Випадкова підмножина питань і таймер — імітація умов реального іспиту. Після завершення показується підсумок за розділами.</p>
+  <div class="exam-setup" id="examSetup">
+    <label>Кількість питань:
+      <select id="examCount">
+        <option value="20">20</option>
+        <option value="40" selected>40</option>
+        <option value="60">60</option>
+        <option value="80">80 (усі)</option>
+      </select>
+    </label>
+    <label>Час на екзамен:
+      <select id="examMinutes">
+        <option value="20">20 хв</option>
+        <option value="40" selected>40 хв</option>
+        <option value="60">60 хв</option>
+        <option value="90">90 хв</option>
+      </select>
+    </label>
+    <button id="examStart" class="btn" type="button">▶ Розпочати екзамен</button>
+  </div>
+  <div class="exam-active" id="examActive" style="display:none;">
+    <span>⏱ Залишилось:</span> <span id="examTimer" class="exam-timer">40:00</span>
+    <button id="examStop" class="btn btn-secondary" type="button">Завершити достроково</button>
+  </div>
+</div>
+<div id="quizCategoryBreakdown" class="quiz-category-breakdown" style="display:none;"></div>
 <div class="quiz-controls">
   <button id="quizSubmit" class="btn">Перевірити результат</button>
   <button id="quizReset" class="btn btn-secondary">Скинути</button>

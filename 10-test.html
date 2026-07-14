@@ -53,6 +53,34 @@
     
 <p>Оберіть відповідь для кожного питання і натисніть «Перевірити результат» унизу сторінки. Питання згруповано за тими самими 8 розділами семінару.</p>
 <div id="quizLastResult" class="quiz-last-result" style="display:none;"></div>
+<div class="exam-panel" id="examPanel">
+  <h3 style="margin-top:0;">Режим екзамену</h3>
+  <p class="muted" style="margin-top:0;">Випадкова підмножина питань і таймер — імітація умов реального іспиту. Після завершення показується підсумок за розділами.</p>
+  <div class="exam-setup" id="examSetup">
+    <label>Кількість питань:
+      <select id="examCount">
+        <option value="20">20</option>
+        <option value="40" selected>40</option>
+        <option value="60">60</option>
+        <option value="80">80 (усі)</option>
+      </select>
+    </label>
+    <label>Час на екзамен:
+      <select id="examMinutes">
+        <option value="20">20 хв</option>
+        <option value="40" selected>40 хв</option>
+        <option value="60">60 хв</option>
+        <option value="90">90 хв</option>
+      </select>
+    </label>
+    <button id="examStart" class="btn" type="button">▶ Розпочати екзамен</button>
+  </div>
+  <div class="exam-active" id="examActive" style="display:none;">
+    <span>⏱ Залишилось:</span> <span id="examTimer" class="exam-timer">40:00</span>
+    <button id="examStop" class="btn btn-secondary" type="button">Завершити достроково</button>
+  </div>
+</div>
+<div id="quizCategoryBreakdown" class="quiz-category-breakdown" style="display:none;"></div>
 <div class="quiz-controls">
   <button id="quizSubmit" class="btn">Перевірити результат</button>
   <button id="quizReset" class="btn btn-secondary">Скинути</button>

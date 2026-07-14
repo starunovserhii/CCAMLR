@@ -420,6 +420,18 @@ figure.wide img { max-width: 100%; }
 }
 .checklist-item input { margin-top: 3px; flex-shrink: 0; width: 16px; height: 16px; cursor: pointer; }
 .checklist-item.checked span { text-decoration: line-through; color: var(--gray); }
+.btn-star { background: var(--accent-light); color: var(--accent); }
+.btn-star:hover { background: #ffe9a8; }
+.btn-star.active { background: #ffd76b; color: #5c3d00; }
+.exam-panel { background: var(--accent-light); border: 1px solid var(--accent2); border-radius: 10px; padding: 14px 18px; margin: 14px 0; }
+.exam-setup { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
+.exam-setup label { font-size: 0.9rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.exam-setup select { padding: 5px 8px; border-radius: 5px; border: 1px solid var(--border); }
+.exam-active { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 8px; font-weight: 600; }
+.exam-timer { font-family: monospace; font-size: 1.3rem; font-weight: 700; color: var(--accent); background: var(--card-bg); padding: 2px 12px; border-radius: 6px; border: 1px solid var(--accent2); }
+.exam-timer.low { color: var(--bad); border-color: var(--bad); }
+.quiz-category-breakdown { margin: 14px 0; }
+.quiz-category-breakdown table { font-size: 0.88rem; }
 .quiz-controls { display: flex; align-items: center; gap: 14px; margin: 12px 0; flex-wrap: wrap; }
 .btn {
   background: var(--accent); color: #fff; border: none; padding: 10px 20px;
@@ -450,6 +462,14 @@ figure.wide img { max-width: 100%; }
 }
 
 @media print {
-  .sidebar, .nav-toggle, .quiz-controls { display: none; }
+  .sidebar, .nav-toggle, .quiz-controls, .exam-panel, #cheatsheetPrint { display: none !important; }
   .content { max-width: 100%; padding: 0; }
+  :root, html[data-theme="dark"] {
+    --text: #111; --bg: #fff; --card-bg: #fff; --border: #ccc;
+    --accent: #1F4E79; --accent2: #2E86AB; --accent-light: #eaf1f8; --gray: #444;
+  }
+  .card, .cheatsheet .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; page-break-inside: avoid; }
+  tbody tr:nth-child(even) { background: #f5f8fb !important; }
+  .comment { background: #fff8e6 !important; color: #333 !important; }
+  .comment strong { color: #8a6300 !important; }
 }

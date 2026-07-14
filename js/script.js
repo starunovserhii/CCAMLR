@@ -244,10 +244,34 @@ document.addEventListener("DOMContentLoaded", function () {
       var flashBackEl = document.getElementById("flashBack");
       var flashProgressEl = document.getElementById("flashProgress");
       var flashTabs = document.querySelectorAll(".flash-tab");
+      var flashHardTabEl = document.getElementById("flashHardTab");
+      var flashHardToggleBtn = document.getElementById("flashHardToggle");
       var currentDeckKey = "terms";
       var currentDeck = flashData.terms.slice();
       var flashIdx = 0;
       var flashFlipped = false;
+
+      var allFlashCards = flashData.terms.concat(flashData.codes);
+      var FLASH_HARD_KEY = "ccamlr_flash_hard_v1";
+      function loadHardSet() {
+        try { return JSON.parse(localStorage.getItem(FLASH_HARD_KEY) || "{}"); } catch (e) { return {}; }
+      }
+      function saveHardSet(set) {
+        try { localStorage.setItem(FLASH_HARD_KEY, JSON.stringify(set)); } catch (e) {}
+      }
+      var hardSet = loadHardSet();
+      function hardCount() {
+        var n = 0;
+        for (var k in hardSet) { if (hardSet[k]) n++; }
+        return n;
+      }
+      function updateHardTabLabel() {
+        if (flashHardTabEl) flashHardTabEl.textContent = "★ Важкі (" + hardCount() + ")";
+      }
+      function deckForKey(key) {
+        if (key === "hard") return allFlashCards.filter(function (c) { return hardSet[c.id]; }).slice();
+        return flashData[key].slice();
+      }
 
       function shuffleArray(arr) {
         for (var i = arr.length - 1; i > 0; i--) {
@@ -257,17 +281,37 @@ document.addEventListener("DOMContentLoaded", function () {
         return arr;
       }
 
+      function updateStarButton() {
+        if (!flashHardToggleBtn) return;
+        var card = currentDeck[flashIdx];
+        if (!card) { flashHardToggleBtn.style.display = "none"; return; }
+        flashHardToggleBtn.style.display = "";
+        var isHard = !!hardSet[card.id];
+        flashHardToggleBtn.classList.toggle("active", isHard);
+        flashHardToggleBtn.textContent = isHard ? "★ Позначено важкою" : "☆ Позначити важкою";
+      }
+
       function renderFlashcard() {
-        if (currentDeck.length === 0) return;
+        if (currentDeck.length === 0) {
+          flashFrontEl.innerHTML = currentDeckKey === "hard" ? "Немає позначених карток.<br><span class=\"flash-pron\">Натисніть ☆ на будь-якій картці, щоб додати її сюди.</span>" : "";
+          flashBackEl.innerHTML = "";
+          flashFrontEl.style.display = "block";
+          flashBackEl.style.display = "none";
+          flashProgressEl.textContent = "0 / 0";
+          if (flashHardToggleBtn) flashHardToggleBtn.style.display = "none";
+          return;
+        }
         var card = currentDeck[flashIdx];
         flashFrontEl.innerHTML = card.front;
         flashBackEl.innerHTML = card.back;
         flashFrontEl.style.display = flashFlipped ? "none" : "block";
         flashBackEl.style.display = flashFlipped ? "block" : "none";
         flashProgressEl.textContent = (flashIdx + 1) + " / " + currentDeck.length;
+        updateStarButton();
       }
 
       function goTo(delta) {
+        if (currentDeck.length === 0) return;
         flashIdx = (flashIdx + delta + currentDeck.length) % currentDeck.length;
         flashFlipped = false;
         renderFlashcard();
@@ -298,8 +342,22 @@ document.addEventListener("DOMContentLoaded", function () {
       });
       var flashRestartBtn = document.getElementById("flashRestart");
       if (flashRestartBtn) flashRestartBtn.addEventListener("click", function () {
-        currentDeck = flashData[currentDeckKey].slice();
+        currentDeck = deckForKey(currentDeckKey);
         flashIdx = 0; flashFlipped = false;
+        renderFlashcard();
+      });
+      if (flashHardToggleBtn) flashHardToggleBtn.addEventListener("click", function () {
+        var card = currentDeck[flashIdx];
+        if (!card) return;
+        if (hardSet[card.id]) { delete hardSet[card.id]; } else { hardSet[card.id] = true; }
+        saveHardSet(hardSet);
+        updateHardTabLabel();
+        if (currentDeckKey === "hard" && !hardSet[card.id]) {
+          // card just unmarked while viewing the hard deck — remove it from the active deck
+          currentDeck.splice(flashIdx, 1);
+          if (flashIdx >= currentDeck.length) flashIdx = 0;
+          flashFlipped = false;
+        }
         renderFlashcard();
       });
       flashTabs.forEach(function (tab) {
@@ -307,11 +365,12 @@ document.addEventListener("DOMContentLoaded", function () {
           flashTabs.forEach(function (t) { t.classList.remove("active"); });
           tab.classList.add("active");
           currentDeckKey = tab.getAttribute("data-deck");
-          currentDeck = flashData[currentDeckKey].slice();
+          currentDeck = deckForKey(currentDeckKey);
           flashIdx = 0; flashFlipped = false;
           renderFlashcard();
         });
       });
+      updateHardTabLabel();
       renderFlashcard();
     }
   }
@@ -369,6 +428,12 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  // Print / save-as-PDF button (only present on 09-cheatsheet.html)
+  var cheatsheetPrintBtn = document.getElementById("cheatsheetPrint");
+  if (cheatsheetPrintBtn) {
+    cheatsheetPrintBtn.addEventListener("click", function () { window.print(); });
+  }
+
   // Quiz logic (only present on 10-test.html)
   var form = document.getElementById("quizForm");
   if (!form) return;
@@ -382,47 +447,72 @@ document.addEventListener("DOMContentLoaded", function () {
     try { localStorage.setItem(QUIZ_KEY, JSON.stringify(data)); } catch (e) {}
   }
 
+  function isVisible(el) { return el.style.display !== "none"; }
+
   function gradeQuiz() {
-    var qs = document.querySelectorAll(".quiz-q");
+    if (examTimerHandle) stopExamTimer(false);
+    var qs = Array.prototype.filter.call(document.querySelectorAll(".quiz-q"), isVisible);
     var total = qs.length;
     var correctCount = 0;
     var unanswered = 0;
     var wrongNums = [];
-    qs.forEach(function (qEl) {
-      var qnum = qEl.getAttribute("data-qnum");
-      var correct = qEl.getAttribute("data-correct");
-      var selected = form.querySelector('input[name="q' + qnum + '"]:checked');
-      var feedback = qEl.querySelector(".quiz-feedback");
-      qEl.classList.remove("correct", "incorrect");
-      if (!selected) {
-        unanswered++;
-        wrongNums.push(qnum);
-        feedback.textContent = "Питання без відповіді.";
-        feedback.className = "quiz-feedback";
-        return;
-      }
-      if (selected.value === correct) {
-        correctCount++;
-        qEl.classList.add("correct");
-        feedback.textContent = "✓ Правильно";
-        feedback.className = "quiz-feedback ok";
-      } else {
-        qEl.classList.add("incorrect");
-        wrongNums.push(qnum);
-        var correctLabel = String.fromCharCode(65 + parseInt(correct, 10));
-        feedback.textContent = "✗ Неправильно. Правильна відповідь: " + correctLabel;
-        feedback.className = "quiz-feedback bad";
-      }
+    var catStats = [];
+    document.querySelectorAll("#quizForm > section.card").forEach(function (sec) {
+      var secQs = Array.prototype.filter.call(sec.querySelectorAll(".quiz-q"), isVisible);
+      if (secQs.length === 0) return;
+      var catName = sec.querySelector("h2") ? sec.querySelector("h2").textContent : "";
+      var catCorrect = 0;
+      secQs.forEach(function (qEl) {
+        var qnum = qEl.getAttribute("data-qnum");
+        var correct = qEl.getAttribute("data-correct");
+        var selected = form.querySelector('input[name="q' + qnum + '"]:checked');
+        var feedback = qEl.querySelector(".quiz-feedback");
+        qEl.classList.remove("correct", "incorrect");
+        if (!selected) {
+          unanswered++;
+          wrongNums.push(qnum);
+          feedback.textContent = "Питання без відповіді.";
+          feedback.className = "quiz-feedback";
+          return;
+        }
+        if (selected.value === correct) {
+          correctCount++; catCorrect++;
+          qEl.classList.add("correct");
+          feedback.textContent = "✓ Правильно";
+          feedback.className = "quiz-feedback ok";
+        } else {
+          qEl.classList.add("incorrect");
+          wrongNums.push(qnum);
+          var correctLabel = String.fromCharCode(65 + parseInt(correct, 10));
+          feedback.textContent = "✗ Неправильно. Правильна відповідь: " + correctLabel;
+          feedback.className = "quiz-feedback bad";
+        }
+      });
+      catStats.push({ name: catName, correct: catCorrect, total: secQs.length });
     });
-    var pct = Math.round((correctCount / total) * 100);
+    var pct = total ? Math.round((correctCount / total) * 100) : 0;
     var msg = "Результат: " + correctCount + " / " + total + " (" + pct + "%)" +
       (unanswered ? " — не відповіли на " + unanswered + " питань" : "");
     document.getElementById("quizScore").textContent = msg;
     document.getElementById("quizScore2").textContent = msg;
+    renderCategoryBreakdown(catStats);
 
     saveQuizHistory({ correct: correctCount, total: total, wrong: wrongNums, date: new Date().toISOString() });
     updateLastResultBanner();
     updateReviewButtons(wrongNums);
+  }
+
+  function renderCategoryBreakdown(catStats) {
+    var box = document.getElementById("quizCategoryBreakdown");
+    if (!box) return;
+    if (!catStats || !catStats.length) { box.style.display = "none"; box.innerHTML = ""; return; }
+    var rows = catStats.map(function (c) {
+      var p = c.total ? Math.round((c.correct / c.total) * 100) : 0;
+      var color = p >= 80 ? "var(--ok)" : (p >= 50 ? "var(--accent2)" : "var(--bad)");
+      return "<tr><td>" + c.name + "</td><td>" + c.correct + " / " + c.total + "</td><td style=\"color:" + color + ";font-weight:600;\">" + p + "%</td></tr>";
+    }).join("");
+    box.innerHTML = "<h3>Підсумок за розділами</h3><div class=\"table-wrap\"><table><thead><tr><th>Розділ</th><th>Правильно</th><th>%</th></tr></thead><tbody>" + rows + "</tbody></table></div>";
+    box.style.display = "block";
   }
 
   function updateLastResultBanner() {
@@ -463,6 +553,80 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Exam mode: random subset of questions + countdown timer
+  var examTimerHandle = null;
+  var examSecondsLeft = 0;
+  var allQuizNums = Array.prototype.map.call(document.querySelectorAll(".quiz-q"), function (qEl) { return qEl.getAttribute("data-qnum"); });
+
+  function formatTime(sec) {
+    var m = Math.floor(sec / 60);
+    var s = sec % 60;
+    return (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
+  }
+
+  function tickExamTimer() {
+    examSecondsLeft--;
+    var timerEl = document.getElementById("examTimer");
+    if (timerEl) {
+      timerEl.textContent = formatTime(Math.max(0, examSecondsLeft));
+      timerEl.classList.toggle("low", examSecondsLeft <= 120);
+    }
+    if (examSecondsLeft <= 0) {
+      stopExamTimer(true);
+      gradeQuiz();
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  function stopExamTimer(timeUp) {
+    if (examTimerHandle) { clearInterval(examTimerHandle); examTimerHandle = null; }
+    var setupEl = document.getElementById("examSetup");
+    var activeEl = document.getElementById("examActive");
+    if (setupEl) setupEl.style.display = "flex";
+    if (activeEl) activeEl.style.display = "none";
+  }
+
+  function startExam() {
+    var count = parseInt(document.getElementById("examCount").value, 10);
+    var minutes = parseInt(document.getElementById("examMinutes").value, 10);
+    var pool = allQuizNums.slice();
+    for (var i = pool.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = pool[i]; pool[i] = pool[j]; pool[j] = tmp;
+    }
+    var chosen = pool.slice(0, Math.min(count, pool.length));
+    form.reset();
+    document.querySelectorAll(".quiz-q").forEach(function (qEl) {
+      qEl.classList.remove("correct", "incorrect");
+      qEl.querySelector(".quiz-feedback").textContent = "";
+    });
+    document.getElementById("quizScore").textContent = "";
+    document.getElementById("quizScore2").textContent = "";
+    var breakdownBox = document.getElementById("quizCategoryBreakdown");
+    if (breakdownBox) { breakdownBox.style.display = "none"; breakdownBox.innerHTML = ""; }
+    filterToQuestions(chosen);
+    document.getElementById("quizReviewMistakes").style.display = "none";
+    document.getElementById("quizShowAll").style.display = "none";
+
+    examSecondsLeft = minutes * 60;
+    document.getElementById("examSetup").style.display = "none";
+    document.getElementById("examActive").style.display = "flex";
+    var timerEl = document.getElementById("examTimer");
+    if (timerEl) { timerEl.textContent = formatTime(examSecondsLeft); timerEl.classList.remove("low"); }
+    examTimerHandle = setInterval(tickExamTimer, 1000);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  var examStartBtn = document.getElementById("examStart");
+  if (examStartBtn) examStartBtn.addEventListener("click", function (e) { e.preventDefault(); startExam(); });
+  var examStopBtn = document.getElementById("examStop");
+  if (examStopBtn) examStopBtn.addEventListener("click", function (e) {
+    e.preventDefault();
+    stopExamTimer(false);
+    gradeQuiz();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
   document.getElementById("quizSubmit").addEventListener("click", function (e) {
     e.preventDefault();
     gradeQuiz();
@@ -474,6 +638,7 @@ document.addEventListener("DOMContentLoaded", function () {
   });
   document.getElementById("quizReset").addEventListener("click", function (e) {
     e.preventDefault();
+    stopExamTimer(false);
     form.reset();
     document.querySelectorAll(".quiz-q").forEach(function (qEl) {
       qEl.classList.remove("correct", "incorrect");
@@ -481,6 +646,8 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     document.getElementById("quizScore").textContent = "";
     document.getElementById("quizScore2").textContent = "";
+    var breakdownBox2 = document.getElementById("quizCategoryBreakdown");
+    if (breakdownBox2) { breakdownBox2.style.display = "none"; breakdownBox2.innerHTML = ""; }
     filterToQuestions(null);
     document.getElementById("quizShowAll").style.display = "none";
     var hist = loadQuizHistory();
