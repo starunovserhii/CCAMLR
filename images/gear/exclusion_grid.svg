@@ -1,0 +1,25 @@
+<svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="340" height="220" fill="#eaf1f8"/>
+  <path d="M40,90 L280,60 L300,190 L60,190 Z" fill="none" stroke="#1F4E79" stroke-width="2"/>
+  <path d="M70,100 L260,75 M85,120 L255,100 M95,140 L250,125 M105,160 L245,150 M115,178 L240,172" stroke="#2E86AB" stroke-width="0.8"/>
+  <!-- rigid grid bars at an angle -->
+  <g stroke="#8a6300" stroke-width="2.5">
+    <line x1="95" y1="90" x2="130" y2="185"/>
+    <line x1="115" y1="88" x2="150" y2="182"/>
+    <line x1="135" y1="85" x2="170" y2="179"/>
+    <line x1="155" y1="82" x2="190" y2="176"/>
+    <line x1="175" y1="79" x2="210" y2="173"/>
+  </g>
+  <!-- escape opening at top of grid -->
+  <ellipse cx="205" cy="72" rx="20" ry="8" fill="none" stroke="#e0a800" stroke-width="2.5"/>
+  <ellipse cx="245" cy="58" rx="14" ry="7" fill="#595959"/>
+  <path d="M259,58 L272,53 M259,56 L272,61" stroke="#595959" stroke-width="2"/>
+  <path d="M170,110 Q200,85 240,62" stroke="#e0a800" stroke-width="2" fill="none" marker-end="url(#arrow2)"/>
+  <defs><marker id="arrow2" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#e0a800"/></marker></defs>
+  <!-- small fish passing through grid to codend -->
+  <ellipse cx="255" cy="150" rx="5" ry="2.5" fill="#2E86AB"/>
+  <circle cx="290" cy="190" r="7" fill="#1F4E79"/>
+  <text x="80" y="30" font-size="15" font-weight="700" fill="#1F4E79">Решітка (grid)</text>
+  <text x="80" y="48" font-size="11" fill="#2E86AB" font-style="italic">Grid exclusion device</text>
+  <text x="10" y="212" font-size="10" fill="#595959">Жорсткі паралельні прути пропускають рибу, але відхиляють велику тварину до виходу</text>
+</svg>

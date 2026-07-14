@@ -1,0 +1,20 @@
+<svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="340" height="220" fill="#eaf1f8"/>
+  <rect x="0" y="150" width="340" height="70" fill="#d7e5f0"/>
+  <!-- vessel -->
+  <polygon points="40,95 90,95 80,115 50,115" fill="#1F4E79"/>
+  <rect x="52" y="80" width="14" height="16" fill="#1F4E79"/>
+  <!-- warp -->
+  <line x1="65" y1="115" x2="140" y2="150" stroke="#2E86AB" stroke-width="2"/>
+  <!-- beam -->
+  <line x1="140" y1="150" x2="200" y2="150" stroke="#8a6300" stroke-width="6" stroke-linecap="round"/>
+  <circle cx="140" cy="150" r="5" fill="#8a6300"/>
+  <circle cx="200" cy="150" r="5" fill="#8a6300"/>
+  <!-- net cone -->
+  <path d="M140,150 L200,150 L235,190 L165,205 Z" fill="none" stroke="#1F4E79" stroke-width="2"/>
+  <path d="M150,155 L190,155 M155,163 L195,168 M160,172 L200,178 M165,182 L205,189" stroke="#2E86AB" stroke-width="1"/>
+  <path d="M165,205 L235,190 L232,196 L168,210 Z" fill="#1F4E79"/>
+  <text x="170" y="30" font-size="15" font-weight="700" fill="#1F4E79">Пелагічний беам-трал</text>
+  <text x="170" y="48" font-size="11" fill="#2E86AB" font-style="italic">Midwater beam trawl</text>
+  <text x="10" y="205" font-size="10" fill="#595959">Жорстка розпірка (beam) утримує вхід сітки відкритим</text>
+</svg>

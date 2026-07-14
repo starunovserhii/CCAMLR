@@ -1,0 +1,21 @@
+<svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="340" height="220" fill="#eaf1f8"/>
+  <path d="M0,195 Q80,185 170,195 T340,195 L340,220 L0,220 Z" fill="#c9b98a"/>
+  <!-- rectangular frame (isometric-ish) -->
+  <rect x="110" y="130" width="120" height="60" fill="none" stroke="#1F4E79" stroke-width="2.5"/>
+  <polygon points="110,130 130,115 250,115 230,130" fill="none" stroke="#1F4E79" stroke-width="2"/>
+  <polygon points="230,130 250,115 250,175 230,190" fill="none" stroke="#1F4E79" stroke-width="2"/>
+  <!-- mesh lines -->
+  <line x1="140" y1="130" x2="140" y2="190" stroke="#2E86AB" stroke-width="0.8"/>
+  <line x1="170" y1="130" x2="170" y2="190" stroke="#2E86AB" stroke-width="0.8"/>
+  <line x1="200" y1="130" x2="200" y2="190" stroke="#2E86AB" stroke-width="0.8"/>
+  <line x1="110" y1="150" x2="230" y2="150" stroke="#2E86AB" stroke-width="0.8"/>
+  <line x1="110" y1="170" x2="230" y2="170" stroke="#2E86AB" stroke-width="0.8"/>
+  <!-- top entrance funnel -->
+  <ellipse cx="180" cy="122" rx="14" ry="6" fill="none" stroke="#8a6300" stroke-width="2"/>
+  <!-- bait on floor -->
+  <ellipse cx="170" cy="178" rx="9" ry="6" fill="#e0a800" opacity="0.85"/>
+  <text x="70" y="30" font-size="15" font-weight="700" fill="#1F4E79">Прямокутна пастка</text>
+  <text x="70" y="48" font-size="11" fill="#2E86AB" font-style="italic">Rectangular configuration pot</text>
+  <text x="10" y="212" font-size="10" fill="#fff">Вхід зверху, приманка розміщується на дні пастки</text>
+</svg>

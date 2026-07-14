@@ -1,0 +1,19 @@
+<svg viewBox="0 0 340 220" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <rect width="340" height="220" fill="#eaf1f8"/>
+  <path d="M0,195 Q80,185 170,195 T340,195 L340,220 L0,220 Z" fill="#c9b98a"/>
+  <!-- beehive dome shape -->
+  <path d="M110,190 C110,120 230,120 230,190 Z" fill="none" stroke="#1F4E79" stroke-width="2.5"/>
+  <!-- mesh texture rings -->
+  <path d="M118,190 C118,140 222,140 222,190" fill="none" stroke="#2E86AB" stroke-width="1"/>
+  <path d="M128,190 C128,150 212,150 212,190" fill="none" stroke="#2E86AB" stroke-width="1"/>
+  <path d="M138,190 C138,158 202,158 202,190" fill="none" stroke="#2E86AB" stroke-width="1"/>
+  <line x1="110" y1="190" x2="230" y2="190" stroke="#1F4E79" stroke-width="2.5"/>
+  <!-- front entrance funnel -->
+  <ellipse cx="170" cy="175" rx="16" ry="8" fill="none" stroke="#8a6300" stroke-width="2"/>
+  <!-- bait bag hanging from roof -->
+  <ellipse cx="170" cy="150" rx="10" ry="13" fill="#e0a800" opacity="0.85"/>
+  <line x1="170" y1="122" x2="170" y2="137" stroke="#8a6300" stroke-width="1.5"/>
+  <text x="90" y="30" font-size="15" font-weight="700" fill="#1F4E79">Пастка «вулик» (beehive)</text>
+  <text x="90" y="48" font-size="11" fill="#2E86AB" font-style="italic">Beehive configuration pot</text>
+  <text x="10" y="212" font-size="10" fill="#fff">Вхід у передній панелі, приманка-мішок підвішена до даху</text>
+</svg>

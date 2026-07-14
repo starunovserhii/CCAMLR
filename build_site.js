@@ -157,6 +157,16 @@ function speciesCard(c) {
 function speciesGrid(cards) {
   return `<div class="species-grid">${cards.map(speciesCard).join("")}</div>`;
 }
+// gearCard/gearGrid reuse the exact same card + click-to-expand-modal
+// mechanism built for species cards (same CSS classes, same script.js
+// listener which binds to .species-card) — no need to duplicate any of that
+// plumbing just because the content is gear instead of animals.
+function gearCard(g) {
+  return speciesCard({ img: g.img, ua: g.ua, latin: g.latin, code: g.category, note: g.note });
+}
+function gearGrid(cards) {
+  return `<div class="species-grid">${cards.map(gearCard).join("")}</div>`;
+}
 const speciesModalHtml = `<div class="species-modal-overlay" id="speciesModalOverlay">
   <div class="species-modal" role="dialog" aria-modal="true" aria-labelledby="speciesModalUa">
     <button class="species-modal-close" id="speciesModalClose" aria-label="Закрити">✕</button>
@@ -790,11 +800,34 @@ section("c2manual", "4.3 Commercial Data Collection Manual — Longline Fisherie
 // PAGE 05 — GEAR
 // =====================================================================
 
+const gearCards = [
+  { img: "images/gear/trawl_beam.svg", category: "Трал", ua: "Пелагічний беам-трал", latin: "Midwater beam trawl",
+    note: "Жорстка розпірка (beam) утримує вхід сітки відкритим; загальна довжина сітки вказується окремо." },
+  { img: "images/gear/trawl_otter.svg", category: "Трал", ua: "Пелагічний отер-трал", latin: "Midwater otter trawl",
+    note: "Розпірні дошки (otter boards) розводять вхід сітки в боки за рахунок гідродинамічного опору під час буксирування." },
+  { img: "images/gear/longline_autoline.svg", category: "Ярус", ua: "Autoline (донний ярус)", latin: "Bottom longline, single mainline",
+    note: "Одинарна обважена головна лінія; гачки на коротких повідцях (снудах), наживлюються механічно під час постановки." },
+  { img: "images/gear/longline_spanish.svg", category: "Ярус", ua: "Spanish line (іспанська снасть)", latin: "Double mainline longline",
+    note: "До головної лінії приєднана додаткова станова лінія (backbone), з'єднана поперечними відгалуженнями." },
+  { img: "images/gear/longline_trotline.svg", category: "Ярус", ua: "Trotline (тротлайн)", latin: "Buoyed mainline, hook clusters",
+    note: "Головна лінія плавуча (утримується поверхневими буями); кластери наживлених гачків прикріплені через троти (дропер-лінії)." },
+  { img: "images/gear/pot_beehive.svg", category: "Пастка", ua: "Пастка «вулик»", latin: "Beehive configuration",
+    note: "Вхід у передній панелі (замість верхньої); приманка-мішок підвішена до даху пастки, а не лежить на дні." },
+  { img: "images/gear/pot_rectangular.svg", category: "Пастка", ua: "Прямокутна пастка", latin: "Rectangular configuration",
+    note: "Прямокутний каркас, вхід зверху, приманка розміщується на дні пастки." },
+  { img: "images/gear/exclusion_mesh_panel.svg", category: "Пристрій виключення", ua: "Сітчаста панель", latin: "Mesh panel exclusion device",
+    note: "Діагональна сітчаста вставка спрямовує велику тварину (тюленя, китоподібного) до отвору виходу над основною сіткою." },
+  { img: "images/gear/exclusion_grid.svg", category: "Пристрій виключення", ua: "Решітка", latin: "Grid exclusion device",
+    note: "Жорсткі паралельні прути пропускають рибу до кутка сітки (codend), але відхиляють велику тварину до отвору виходу." }
+];
+
 const page05 = section("gear-note", "Технічна примітка щодо зображень", `
   ${fileTag("Illustrated generic gear diagrams_2023 v1.3.docx")}
-  ${comment("Оригінальні схеми знарядь у цьому файлі побудовані як векторні «полотна» Word (сітчасті текстури, накладені на векторні контури). Було випробувано два незалежні способи вилучення: (1) пряме вилучення вбудованих зображень і повна конвертація сторінок у зображення через LibreOffice — відтворюють лише текстуру-сітку без контурів; (2) повторна спроба через експорт у SVG та PNG (фільтр «draw_png_Export») — обидва завершилися помилкою рендерера LibreOffice (SfxBaseModel::impl_store … 0xc10) саме на цих фігурах. Це підтверджена межа можливостей доступних інструментів, а не втрата даних: векторні дані (~1 МБ) фізично присутні у файлі document.xml, просто жоден наявний рендерер не може їх коректно відобразити. Тому нижче наведено повний перелік знарядь <strong>у структурованому текстовому вигляді</strong>, як зазначено в документі. Якщо потрібні саме оригінальні схеми — рекомендую відкрити файл безпосередньо в Microsoft Word.")}
+  ${comment("Оригінальні схеми знарядь у цьому файлі побудовані як векторні «полотна» Word (сітчасті текстури, накладені на векторні контури). Було випробувано два незалежні способи вилучення: (1) пряме вилучення вбудованих зображень і повна конвертація сторінок у зображення через LibreOffice — відтворюють лише текстуру-сітку без контурів; (2) повторна спроба через експорт у SVG та PNG (фільтр «draw_png_Export») — обидва завершилися помилкою рендерера LibreOffice (SfxBaseModel::impl_store … 0xc10) саме на цих фігурах. Це підтверджена межа можливостей доступних інструментів, а не втрата даних: векторні дані (~1 МБ) фізично присутні у файлі document.xml, просто жоден наявний рендерер не може їх коректно відобразити. Замість оригінальних сканів нижче додано <strong>власні спрощені схематичні ілюстрації</strong> (не копії офіційних креслень) для кожного типу знаряддя — вони передають принцип роботи, але не є технічним кресленням. Якщо потрібні саме оригінальні схеми — рекомендую відкрити файл безпосередньо в Microsoft Word.")}
 `) +
 section("gear-types", "5.1 Типи знарядь лова", `
+  ${p("Натисніть на картку, щоб відкрити збільшену схему та повний опис.")}
+  ${speciesGrid(gearCards)}
   ${h3("Трали")}
   ${ul([
     "<strong>Trawl: midwater beam</strong> — пелагічний беам-трал (загальна довжина сітки вказується окремо; ілюструється одна з двох сіток).",
