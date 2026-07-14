@@ -165,7 +165,7 @@ function speciesCard(c) {
     <div class="species-card-body">
       ${c.code ? `<span class="species-code">${c.code}</span>` : ""}
       <div class="species-ua">${c.ua}</div>
-      <div class="species-latin">${c.latin}</div>
+      ${c.latin ? `<div class="species-latin">${c.latin}</div>` : ""}
       ${c.note ? `<div class="species-note">${c.note}</div>` : ""}
       ${sourceHtml}
     </div>
@@ -183,6 +183,15 @@ function gearCard(g) {
 }
 function gearGrid(cards) {
   return `<div class="species-grid">${cards.map(gearCard).join("")}</div>`;
+}
+// figureCard/figureGrid: same reused click-to-expand-modal mechanism, for plain
+// numbered figures/scans (e.g. tagging manual illustrations) that only need an
+// image + caption — no species name/code/latin fields involved.
+function figureCard([src, caption]) {
+  return speciesCard({ img: src, ua: caption, icon: "📷" });
+}
+function figureGrid(items) {
+  return `<div class="species-grid">${items.map(figureCard).join("")}</div>`;
 }
 const speciesModalHtml = `<div class="species-modal-overlay" id="speciesModalOverlay">
   <div class="species-modal" role="dialog" aria-modal="true" aria-labelledby="speciesModalUa">
@@ -1438,7 +1447,8 @@ const page08 = section("tagging-manual", "8.1 Toothfish and Skate Tagging Manual
   ${comment("Ключова вимога, яку легко порушити ненавмисно: «загальний час поза водою — до 3 хвилин». Це означає, що вся процедура (від підйому до випуску) має бути відпрацьована як злагоджена командна дія.")}
 `) +
 section("tagging-gallery", "8.2 Ілюстрації з посібника з мічення (" + taggingGallery.length + " зображень)", `
-  ${gallery(taggingGallery, "small-grid")}
+  ${p("Клікніть на зображення, щоб відкрити його у збільшеному вигляді разом з повним підписом.")}
+  ${figureGrid(taggingGallery)}
   ${comment("Кожне зображення підписано за офіційним номером «Figure N» з «Table of Figures» посібника та зіставлено з конкретним зображенням через порядок появи в структурі DOCX-файлу — замість попередніх узагальнених підписів на кшталт «Ілюстрація з посібника з мічення».")}
 `) +
 section("etag-survey", "8.3 Опитування щодо процедур мічення на судні", `
