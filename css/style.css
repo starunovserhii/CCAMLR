@@ -171,6 +171,11 @@ body {
   border-radius: 8px;
   margin-bottom: 16px;
 }
+.countdown-exam {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent2) 100%);
+  font-size: 1.05rem;
+  text-align: center;
+}
 
 .card {
   background: var(--card-bg);

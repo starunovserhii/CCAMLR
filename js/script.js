@@ -42,6 +42,29 @@ document.addEventListener("DOMContentLoaded", function () {
     } catch (e) { countdownEl.style.display = "none"; }
   }
 
+  // Fixed countdown to the exam deadline (15.08.2026), always shown regardless
+  // of which seminar/exam date is nearest — separate from examCountdown above.
+  var examFixedEl = document.getElementById("examCountdownFixed");
+  if (examFixedEl) {
+    try {
+      var targetStr = examFixedEl.getAttribute("data-target");
+      var label = examFixedEl.getAttribute("data-label") || "події";
+      var targetDate = new Date(targetStr + "T00:00:00");
+      var nowF = new Date();
+      var todayF = new Date(nowF.getFullYear(), nowF.getMonth(), nowF.getDate());
+      var msPerDayF = 24 * 60 * 60 * 1000;
+      var daysLeftF = Math.round((targetDate - todayF) / msPerDayF);
+      var dateStrF = targetDate.toLocaleDateString("uk-UA", { day: "numeric", month: "long", year: "numeric" });
+      var textF;
+      if (daysLeftF > 1) textF = "До " + label + " (" + dateStrF + ") залишилось " + daysLeftF + " дн.";
+      else if (daysLeftF === 1) textF = "До " + label + " (" + dateStrF + ") залишився 1 день!";
+      else if (daysLeftF === 0) textF = "Сьогодні день " + label + " (" + dateStrF + ")!";
+      else textF = label + " (" + dateStrF + ") вже минув.";
+      examFixedEl.textContent = "🎯 " + textF;
+      examFixedEl.style.display = "block";
+    } catch (e) { examFixedEl.style.display = "none"; }
+  }
+
   // Dark theme toggle (persisted in localStorage; initial state already
   // applied pre-paint by the inline script in <head> to avoid a flash).
   var themeBtn = document.getElementById("themeToggle");
