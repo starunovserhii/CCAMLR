@@ -118,6 +118,32 @@ const docMap = {
   "en_C2_2026a.xlsx": "docs/en-c2-2026a.xlsx",
   "риба.doc": "docs/riba.doc"
 };
+// Maps each of the 21 original documents to its "розгорнутий структурований
+// переказ українською" (own-words summary, NOT a verbatim translation — see
+// note inside each file) prepared for Library section 9.
+const docMapUa = {
+  "e-pt1_3.pdf": "docs_ua/01-convention.docx",
+  "e-pt10_4.pdf": "docs_ua/02-siso-scheme.docx",
+  "e-SISO Manual Finfish Fisheries 2026.pdf": "docs_ua/03-observer-manual.docx",
+  "EN - schedule 2025-26.pdf": "docs_ua/04-schedule-cm.docx",
+  "en_C2_2026a.xlsx": "docs_ua/05-c2-form.docx",
+  "CCAMLR Scientific Observer Longline Vessel Cruise Report 2026.docx": "docs_ua/06-cruise-report.docx",
+  "EN - Movement_10-04 Annex A.xlsx": "docs_ua/07-movement-annex.docx",
+  "CCAMLR Tag Overlap Statistic Calculator_v2026.xlsm": "docs_ua/08-tag-overlap-calc.docx",
+  "2026 Observer Longline Logbook Instructions.pdf": "docs_ua/09-logbook-instructions.docx",
+  "EN - C2 Longline Fisheries Commercial data manual 2025_1.pdf": "docs_ua/10-commercial-data-manual.docx",
+  "Illustrated generic gear diagrams_2023 v1.3.docx": "docs_ua/11-gear-diagrams.docx",
+  "Identification Guide for Toothfish (poster).pdf": "docs_ua/12-toothfish-poster.docx",
+  "DIssostichis eleginoides gonad guide.docx": "docs_ua/13-gonad-guide.docx",
+  "Easy Identification Keys for Grenadiers in 88.1 and 88.3_Sagndeok.pdf": "docs_ua/14-grenadiers-key.docx",
+  "Fishes of the Ross Sea Region_A field guide to common species caught in the longline fishery (2015).pdf": "docs_ua/15-ross-sea-fishes.docx",
+  "риба.doc": "docs_ua/16-riba-doc.docx",
+  "CCAMLR protocols for pinniped identification (1).docx": "docs_ua/17-pinniped-protocol.docx",
+  "SOUTHERN OCEAN whales and dolphins (ASOC poster).pdf": "docs_ua/18-whales-poster.docx",
+  "CCAMLR_VME_guide_2023V2.pdf": "docs_ua/19-vme-guide.docx",
+  "EN - Toothfish and Skate Tagging Manual 2025.docx": "docs_ua/20-tagging-manual.docx",
+  "e-tagging procedures-2020.docx": "docs_ua/21-etag-survey.docx"
+};
 function fileTag(name) {
   const href = docMap[name];
   if (!href) return `<div class="filetag">📄 Файл: <code>${name}</code></div>`;
@@ -1590,6 +1616,17 @@ function libSection(id, title, rows) {
     ${table(["Документ", "Опис / де використовується на сайті", "Дії"], rows)}
   `);
 }
+// libRowUa: row for the Ukrainian "розгорнутий структурований переказ" (own-words
+// summary — NOT a verbatim translation) of each original document, prepared for
+// Library section 9. `name` is the ORIGINAL document's key in docMapUa, so the
+// same lookup name used throughout the rest of the Library page can be reused.
+function libRowUa(name, desc) {
+  const href = docMapUa[name];
+  const actions = href
+    ? `<a href="${href}" target="_blank" rel="noopener">↗ Переглянути</a><br><a href="${href}" download>⬇ Завантажити</a>`
+    : "—";
+  return [`<strong>${name}</strong><br><span class="muted">переказ, DOCX</span>`, desc, actions];
+}
 
 const page13 =
 libSection("lib-1", "1. Керівні документи (3)", [
@@ -1629,7 +1666,33 @@ libSection("lib-8", "8. Мічення / Tagging (2)", [
   libRow("EN - Toothfish and Skate Tagging Manual 2025.docx", "Toothfish and Skate Tagging Manual, версія 2025 — розділ 8.1."),
   libRow("e-tagging procedures-2020.docx", "Опитування щодо процедур мічення на судні (2020) — розділ 8.3.")
 ]) +
-comment("Це всі 21 первинних документа, надані для підготовки до семінару та іспиту. Файли відкриваються в новій вкладці або завантажуються напряму з сайту — окремо шукати їх не потрібно.");
+comment("Це всі 21 первинних документа, надані для підготовки до семінару та іспиту. Файли відкриваються в новій вкладці або завантажуються напряму з сайту — окремо шукати їх не потрібно.") +
+section("lib-9", "9. Перекази документів українською (усі 21)", `
+  ${comment("Це НЕ дослівні переклади офіційних документів (їх я не можу поширювати як окремі файли — це стосується авторського права), а розгорнуті структуровані перекази — детальний виклад змісту кожного документа своїми словами українською мовою, підготовлений для підготовки до іспиту. Для юридично точних формулювань, повних таблиць і оригінальних зображень завжди звертайтесь до оригіналу (пункти 1–8 вище).")}
+  ${table(["Документ (переказ)", "Що охоплює", "Дії"], [
+    libRowUa("e-pt1_3.pdf", "Переказ Конвенції CCAMLR: усі 33 статті стисло, з поясненням практичного значення для спостерігача."),
+    libRowUa("e-pt10_4.pdf", "Переказ Схеми SISO: розділи A–H, Додаток I (функції спостерігача), Додаток II (план дій у надзвичайних ситуаціях)."),
+    libRowUa("e-SISO Manual Finfish Fisheries 2026.pdf", "Переказ Scientific Observer's Manual: структура з 17 розділів, ключові теми (виміри, зрілість, отоліти, коефіцієнти переведення, мічення, ВМЕ)."),
+    libRowUa("EN - schedule 2025-26.pdf", "Переказ Schedule of Conservation Measures: усі серії заходів (10–91) з поясненнями, чинні резолюції."),
+    libRowUa("en_C2_2026a.xlsx", "Переказ структури форми C2: усі 9 аркушів, витяг видових кодів, практичні зауваги."),
+    libRowUa("CCAMLR Scientific Observer Longline Vessel Cruise Report 2026.docx", "Переказ структури Звіту про рейс: усі 16 таблиць з поясненнями, на що звернути увагу."),
+    libRowUa("EN - Movement_10-04 Annex A.xlsx", "Переказ призначення й полів довідника переміщення суден, перелік підрайонів/поділів."),
+    libRowUa("CCAMLR Tag Overlap Statistic Calculator_v2026.xlsm", "Переказ методики розрахунку статистики перекриття мічення, порядок заповнення, обмеження."),
+    libRowUa("2026 Observer Longline Logbook Instructions.pdf", "Детальний переказ інструкції за кожним з 12 аркушів журналу, коди травм скатів."),
+    libRowUa("EN - C2 Longline Fisheries Commercial data manual 2025_1.pdf", "Переказ посібника для судна: історія версій форми C2, ключові визначення."),
+    libRowUa("Illustrated generic gear diagrams_2023 v1.3.docx", "Переказ типів знарядь лова: трали, ярусна снасть, пастки, пристрої виключення ссавців."),
+    libRowUa("Identification Guide for Toothfish (poster).pdf", "Переказ постера визначення клича: систематика, розрізнення видів, стадії зрілості гонад."),
+    libRowUa("DIssostichis eleginoides gonad guide.docx", "Переказ фотоатласу стадій зрілості гонад патагонського клича."),
+    libRowUa("Easy Identification Keys for Grenadiers in 88.1 and 88.3_Sagndeok.pdf", "Переказ ключів визначення 4 видів довгохвостів роду Macrourus."),
+    libRowUa("Fishes of the Ross Sea Region_A field guide to common species caught in the longline fishery (2015).pdf", "Переказ визначника: 11 родин, 30 видів, структура фотогалереї та «Quick key»."),
+    libRowUa("риба.doc", "Переказ довідки з кодами видів риб, перевірка достовірності кожного коду."),
+    libRowUa("CCAMLR protocols for pinniped identification (1).docx", "Переказ протоколу: 6 видів ластоногих, визначення статі, виміри, безпека."),
+    libRowUa("SOUTHERN OCEAN whales and dolphins (ASOC poster).pdf", "Переказ постера ASOC: 14 видів китоподібних, типи косаток, загрози Південного океану."),
+    libRowUa("CCAMLR_VME_guide_2023V2.pdf", "Переказ визначника ВМЕ: повна таблиця кодів таксонів-індикаторів, ключові терміни й вимоги."),
+    libRowUa("EN - Toothfish and Skate Tagging Manual 2025.docx", "Переказ посібника з мічення: підготовка, СОП, критерії непридатності, техніка встановлення мітки."),
+    libRowUa("e-tagging procedures-2020.docx", "Переказ опитування 2020 року щодо процедур мічення на судні.")
+  ])}
+`);
 
 // =====================================================================
 // PAGE 09 — CHEATSHEET
