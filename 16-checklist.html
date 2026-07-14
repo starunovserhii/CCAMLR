@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Чек-лист підготовки — Підготовка CCAMLR SISO</title>
+<meta name="description" content="Інтерактивний чек-лист підготовки до рейсу спостерігача CCAMLR SISO: документи, спорядження, технічна підготовка.">
+<link rel="canonical" href="https://starunovserhii.github.io/CCAMLR/16-checklist.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Чек-лист підготовки — Підготовка CCAMLR SISO">
+<meta property="og:description" content="Інтерактивний чек-лист підготовки до рейсу спостерігача CCAMLR SISO: документи, спорядження, технічна підготовка.">
+<meta property="og:url" content="https://starunovserhii.github.io/CCAMLR/16-checklist.html">
+<meta name="theme-color" content="#1F4E79">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐟</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+<script>(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();</script>
+</head>
+<body>
+<button id="navToggle" class="nav-toggle" aria-label="Меню">☰</button>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">🐟 CCAMLR&nbsp;SISO<br><span>Підготовка до іспиту</span></div>
+    <div class="search-box">
+      <input type="text" id="siteSearch" placeholder="Пошук по сайту…" autocomplete="off">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+    <a href="index.html" class="navlink">Головна</a>
+<a href="01-governing.html" class="navlink">Керівні документи</a>
+<a href="02-measures.html" class="navlink">Заходи зі збереження</a>
+<a href="03-forms-main.html" class="navlink">Форми головні</a>
+<a href="04-forms-instructions.html" class="navlink">Форми та інструкції</a>
+<a href="05-gear.html" class="navlink">Знаряддя лова</a>
+<a href="06-identification.html" class="navlink">Визначники</a>
+<a href="07-vme.html" class="navlink">VME</a>
+<a href="08-tagging.html" class="navlink">Мічення (Tagging)</a>
+<a href="11-templates.html" class="navlink">Заповнення журналів</a>
+<a href="12-species-cards.html" class="navlink">Картки видів</a>
+<a href="13-library.html" class="navlink">Бібліотека документів</a>
+<a href="14-glossary.html" class="navlink">Глосарій термінів</a>
+<a href="15-flashcards.html" class="navlink">Флеш-картки</a>
+<a href="16-checklist.html" class="navlink active">Чек-лист підготовки</a>
+<a href="09-cheatsheet.html" class="navlink">Шпаргалка</a>
+<a href="10-test.html" class="navlink">Самоперевірка (тест)</a>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Перемкнути темну тему">🌙 Темна тема</button>
+    <div class="sidebar-footer">Сезон 2026/27<br>Сайт підготовлено 13.07.2026</div>
+  </nav>
+  <main class="content">
+    <h1 class="page-title">Чек-лист підготовки</h1>
+    <section id="checklist-intro" class="card">
+    <h2>Чек-лист підготовки до рейсу</h2>
+    
+  <p>Позначайте виконані пункти — прогрес зберігається у вашому браузері й нікуди не надсилається.</p>
+  <div id="checklistApp">
+    <div class="checklist-progress-bar"><div class="checklist-progress-fill" id="checklistFill"></div></div>
+    <div class="checklist-progress-text" id="checklistProgressText">0%</div>
+    <button id="checklistReset" class="btn btn-secondary" type="button">↺ Скинути всі позначки</button>
+  </div>
+  <h3>Документи (перед виїздом)</h3><div class="checklist-group"><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-1"><span>Паспорт, дійсний щонайменше 6 місяців від дати завершення рейсу</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-2"><span>Віза (якщо потрібна для порту посадки/висадки)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-3"><span>Контракт або лист-призначення від організації-роботодавця</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-4"><span>Посвідчення наукового спостерігача SISO</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-5"><span>Поліс медичного страхування, дійсний на весь період рейсу</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-6"><span>Копії кваліфікаційних сертифікатів (морська підготовка, перша допомога тощо)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-7"><span>Контакти технічного координатора та Секретаріату CCAMLR (ccamlr@ccamlr.org, +61 3 6210 1111)</span></label></div>
+  <h3>Технічна підготовка (цей сайт)</h3><div class="checklist-group"><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-8"><span>Опрацьовано всі 8 тематичних розділів сайту</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-9"><span>Пройдено самоперевірку (тест на 80 питань) з прийнятним результатом</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-10"><span>Переглянуто «Шпаргалку» — ключові цифри й критерії</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-11"><span>Переглянуто «Глосарій термінів» — англійські терміни й абревіатури</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-12"><span>Перевірено, чи є актуальна версія Schedule of Conservation Measures на поточний сезон</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-13"><span>Збережено сайт офлайн (PWA) — перевірено роботу без інтернету</span></label></div>
+  <h3>Особисте спорядження</h3><div class="checklist-group"><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-14"><span>Теплий багатошаровий одяг для роботи на відкритій палубі</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-15"><span>Водонепроникне взуття з нековзною підошвою</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-16"><span>Робочі рукавички (кілька пар)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-17"><span>Засоби індивідуального захисту на випадок контакту з птахами/ссавцями (латексні рукавички, маска, захист очей — протокол HPAI)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-18"><span>Особисті ліки та аптечка першої допомоги</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-19"><span>Засоби зв'язку (за домовленістю з роботодавцем)</span></label></div>
+  <h3>Обладнання для роботи</h3><div class="checklist-group"><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-20"><span>Ноутбук або планшет із завантаженими формами (en_C2v2026a, шаблони)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-21"><span>Власна вимірювальна дошка (якщо не надається судном)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-22"><span>Фотоапарат або смартфон для фото міток і ВМЕ-індикаторів</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-23"><span>Зарядні пристрої та павербанк (автономне живлення)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-24"><span>Роздруковані або збережені офлайн ключові документи (журнал, VME-визначник, Tagging Manual)</span></label></div>
+  <h3>Останні кроки перед виходом у море</h3><div class="checklist-group"><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-25"><span>Зв'язатися з капітаном або агентом судна щодо дати й місця посадки</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-26"><span>Підтвердити дату виходу судна в рейс</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-27"><span>Перевірити нотифікацію судна на офіційному сайті CCAMLR</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-28"><span>Додати дати семінарів та іспиту в календар (.ics на головній сторінці)</span></label><label class="checklist-item"><input type="checkbox" class="checklist-check" data-id="ci-29"><span>Повідомити технічного координатора про готовність до виходу в рейс</span></label></div>
+  <div class="comment"><strong>Коментар:</strong> Це орієнтовний перелік, складений на основі вимог і рекомендацій з документів пакету — не офіційний обов'язковий список CCAMLR. Уточнюйте конкретні вимоги у вашого роботодавця й технічного координатора.</div>
+
+  </section>
+    <footer class="page-footer">
+      <p>Сайт створено на основі 21 офіційного та довідкового документа CCAMLR/SISO, наданих для підготовки до семінару та іспиту. Усі коментарі позначені як <strong>Коментар</strong> є авторськими примітками і не є офіційною позицією CCAMLR.</p>
+    </footer>
+  </main>
+</div>
+<div class="species-modal-overlay" id="speciesModalOverlay">
+  <div class="species-modal" role="dialog" aria-modal="true" aria-labelledby="speciesModalUa">
+    <button class="species-modal-close" id="speciesModalClose" aria-label="Закрити">✕</button>
+    <div id="speciesModalImgWrap"></div>
+    <div class="species-modal-body">
+      <span class="species-modal-code" id="speciesModalCode" style="display:none;"></span>
+      <div class="species-modal-ua" id="speciesModalUa"></div>
+      <div class="species-modal-latin" id="speciesModalLatin"></div>
+      <div class="species-modal-note" id="speciesModalNote"></div>
+    </div>
+  </div>
+</div>
+<button id="backToTop" class="back-to-top" type="button" aria-label="Нагору">↑</button>
+<script src="js/search-index.js"></script>
+<script src="js/script.js"></script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>

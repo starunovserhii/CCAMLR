@@ -13,7 +13,7 @@
 //
 // Bump CACHE_VERSION whenever build_site.js output changes, so old caches
 // are cleared and the new content is fetched.
-const CACHE_VERSION = "ccamlr-siso-v2";
+const CACHE_VERSION = "ccamlr-siso-v3";
 
 const APP_SHELL = [
   "index.html",
@@ -28,6 +28,9 @@ const APP_SHELL = [
   "11-templates.html",
   "12-species-cards.html",
   "13-library.html",
+  "14-glossary.html",
+  "15-flashcards.html",
+  "16-checklist.html",
   "09-cheatsheet.html",
   "10-test.html",
   "css/style.css",

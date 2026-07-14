@@ -233,6 +233,142 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Flashcards (only present on 15-flashcards.html)
+  var flashDataEl = document.getElementById("flashData");
+  if (flashDataEl) {
+    var flashData = null;
+    try { flashData = JSON.parse(flashDataEl.textContent); } catch (e) { flashData = null; }
+    if (flashData) {
+      var flashCardEl = document.getElementById("flashCard");
+      var flashFrontEl = document.getElementById("flashFront");
+      var flashBackEl = document.getElementById("flashBack");
+      var flashProgressEl = document.getElementById("flashProgress");
+      var flashTabs = document.querySelectorAll(".flash-tab");
+      var currentDeckKey = "terms";
+      var currentDeck = flashData.terms.slice();
+      var flashIdx = 0;
+      var flashFlipped = false;
+
+      function shuffleArray(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+          var j = Math.floor(Math.random() * (i + 1));
+          var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+        }
+        return arr;
+      }
+
+      function renderFlashcard() {
+        if (currentDeck.length === 0) return;
+        var card = currentDeck[flashIdx];
+        flashFrontEl.innerHTML = card.front;
+        flashBackEl.innerHTML = card.back;
+        flashFrontEl.style.display = flashFlipped ? "none" : "block";
+        flashBackEl.style.display = flashFlipped ? "block" : "none";
+        flashProgressEl.textContent = (flashIdx + 1) + " / " + currentDeck.length;
+      }
+
+      function goTo(delta) {
+        flashIdx = (flashIdx + delta + currentDeck.length) % currentDeck.length;
+        flashFlipped = false;
+        renderFlashcard();
+      }
+
+      flashCardEl.addEventListener("click", function () {
+        flashFlipped = !flashFlipped;
+        renderFlashcard();
+      });
+      flashCardEl.addEventListener("keydown", function (e) {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          flashFlipped = !flashFlipped;
+          renderFlashcard();
+        }
+      });
+      var flashFlipBtn = document.getElementById("flashFlip");
+      if (flashFlipBtn) flashFlipBtn.addEventListener("click", function () { flashFlipped = !flashFlipped; renderFlashcard(); });
+      var flashNextBtn = document.getElementById("flashNext");
+      if (flashNextBtn) flashNextBtn.addEventListener("click", function () { goTo(1); });
+      var flashPrevBtn = document.getElementById("flashPrev");
+      if (flashPrevBtn) flashPrevBtn.addEventListener("click", function () { goTo(-1); });
+      var flashShuffleBtn = document.getElementById("flashShuffle");
+      if (flashShuffleBtn) flashShuffleBtn.addEventListener("click", function () {
+        shuffleArray(currentDeck);
+        flashIdx = 0; flashFlipped = false;
+        renderFlashcard();
+      });
+      var flashRestartBtn = document.getElementById("flashRestart");
+      if (flashRestartBtn) flashRestartBtn.addEventListener("click", function () {
+        currentDeck = flashData[currentDeckKey].slice();
+        flashIdx = 0; flashFlipped = false;
+        renderFlashcard();
+      });
+      flashTabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          flashTabs.forEach(function (t) { t.classList.remove("active"); });
+          tab.classList.add("active");
+          currentDeckKey = tab.getAttribute("data-deck");
+          currentDeck = flashData[currentDeckKey].slice();
+          flashIdx = 0; flashFlipped = false;
+          renderFlashcard();
+        });
+      });
+      renderFlashcard();
+    }
+  }
+
+  // Pre-trip checklist (only present on 16-checklist.html), persisted in localStorage
+  var checklistApp = document.getElementById("checklistApp");
+  if (checklistApp) {
+    var CHECKLIST_KEY = "ccamlr_checklist_v1";
+    var checkboxes = document.querySelectorAll(".checklist-check");
+    var fillEl = document.getElementById("checklistFill");
+    var textEl = document.getElementById("checklistProgressText");
+
+    function loadChecklist() {
+      try { return JSON.parse(localStorage.getItem(CHECKLIST_KEY) || "{}"); } catch (e) { return {}; }
+    }
+    function saveChecklist(state) {
+      try { localStorage.setItem(CHECKLIST_KEY, JSON.stringify(state)); } catch (e) {}
+    }
+    function updateProgress() {
+      var total = checkboxes.length;
+      var done = 0;
+      checkboxes.forEach(function (cb) { if (cb.checked) done++; });
+      var pct = total ? Math.round((done / total) * 100) : 0;
+      fillEl.style.width = pct + "%";
+      textEl.textContent = done + " / " + total + " виконано (" + pct + "%)";
+    }
+
+    var state = loadChecklist();
+    checkboxes.forEach(function (cb) {
+      var id = cb.getAttribute("data-id");
+      if (state[id]) {
+        cb.checked = true;
+        cb.closest(".checklist-item").classList.add("checked");
+      }
+      cb.addEventListener("change", function () {
+        var s = loadChecklist();
+        s[id] = cb.checked;
+        saveChecklist(s);
+        cb.closest(".checklist-item").classList.toggle("checked", cb.checked);
+        updateProgress();
+      });
+    });
+    updateProgress();
+
+    var resetBtn = document.getElementById("checklistReset");
+    if (resetBtn) {
+      resetBtn.addEventListener("click", function () {
+        saveChecklist({});
+        checkboxes.forEach(function (cb) {
+          cb.checked = false;
+          cb.closest(".checklist-item").classList.remove("checked");
+        });
+        updateProgress();
+      });
+    }
+  }
+
   // Quiz logic (only present on 10-test.html)
   var form = document.getElementById("quizForm");
   if (!form) return;

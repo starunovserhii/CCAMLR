@@ -1,0 +1,45 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CCAMLR SISO Prep Site//UA
+CALSCALE:GREGORIAN
+BEGIN:VEVENT
+UID:seminar1-day1-2026@ccamlr-siso-prep
+DTSTAMP:20260714T000000Z
+DTSTART:20260720T110000
+DTEND:20260720T150000
+SUMMARY:CCAMLR SISO — Семінар 1 (день 1)
+DESCRIPTION:Відеоконференція. Вступ до програми SISO\, огляд заходів зі збереження\, загальні обов'язки спостерігача.
+END:VEVENT
+BEGIN:VEVENT
+UID:seminar1-day2-2026@ccamlr-siso-prep
+DTSTAMP:20260714T000000Z
+DTSTART:20260721T110000
+DTEND:20260721T150000
+SUMMARY:CCAMLR SISO — Семінар 1 (день 2)
+DESCRIPTION:Відеоконференція. Продовження семінару 1.
+END:VEVENT
+BEGIN:VEVENT
+UID:seminar2-day1-2026@ccamlr-siso-prep
+DTSTAMP:20260714T000000Z
+DTSTART:20260727T110000
+DTEND:20260727T150000
+SUMMARY:CCAMLR SISO — Семінар 2 (день 1) + Q&A
+DESCRIPTION:Відеоконференція з українським координатором CCAMLR Іллею Сліпко. Практичні питання щодо заповнення форм.
+END:VEVENT
+BEGIN:VEVENT
+UID:seminar2-day2-2026@ccamlr-siso-prep
+DTSTAMP:20260714T000000Z
+DTSTART:20260728T110000
+DTEND:20260728T150000
+SUMMARY:CCAMLR SISO — Семінар 2 (день 2) + Q&A
+DESCRIPTION:Відеоконференція з українським координатором CCAMLR Іллею Сліпко. Продовження семінару 2.
+END:VEVENT
+BEGIN:VEVENT
+UID:exam-deadline-2026@ccamlr-siso-prep
+DTSTAMP:20260714T000000Z
+DTSTART;VALUE=DATE:20260815
+DTEND;VALUE=DATE:20260816
+SUMMARY:CCAMLR SISO — ІСПИТ (крайній термін)
+DESCRIPTION:Іспит буде призначено не пізніше цієї дати. План попередній і може коригуватися\, перевірте актуальну дату на сайті підготовки.
+END:VEVENT
+END:VCALENDAR

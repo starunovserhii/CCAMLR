@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Флеш-картки — Підготовка CCAMLR SISO</title>
+<meta name="description" content="Інтерактивні флеш-картки для повторення термінів і видових кодів CCAMLR SISO перед іспитом.">
+<link rel="canonical" href="https://starunovserhii.github.io/CCAMLR/15-flashcards.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Флеш-картки — Підготовка CCAMLR SISO">
+<meta property="og:description" content="Інтерактивні флеш-картки для повторення термінів і видових кодів CCAMLR SISO перед іспитом.">
+<meta property="og:url" content="https://starunovserhii.github.io/CCAMLR/15-flashcards.html">
+<meta name="theme-color" content="#1F4E79">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐟</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+<script>(function(){try{var t=localStorage.getItem("theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.setAttribute("data-theme","dark");}}catch(e){}})();</script>
+</head>
+<body>
+<button id="navToggle" class="nav-toggle" aria-label="Меню">☰</button>
+<div class="layout">
+  <nav class="sidebar" id="sidebar">
+    <div class="brand">🐟 CCAMLR&nbsp;SISO<br><span>Підготовка до іспиту</span></div>
+    <div class="search-box">
+      <input type="text" id="siteSearch" placeholder="Пошук по сайту…" autocomplete="off">
+      <div id="searchResults" class="search-results"></div>
+    </div>
+    <a href="index.html" class="navlink">Головна</a>
+<a href="01-governing.html" class="navlink">Керівні документи</a>
+<a href="02-measures.html" class="navlink">Заходи зі збереження</a>
+<a href="03-forms-main.html" class="navlink">Форми головні</a>
+<a href="04-forms-instructions.html" class="navlink">Форми та інструкції</a>
+<a href="05-gear.html" class="navlink">Знаряддя лова</a>
+<a href="06-identification.html" class="navlink">Визначники</a>
+<a href="07-vme.html" class="navlink">VME</a>
+<a href="08-tagging.html" class="navlink">Мічення (Tagging)</a>
+<a href="11-templates.html" class="navlink">Заповнення журналів</a>
+<a href="12-species-cards.html" class="navlink">Картки видів</a>
+<a href="13-library.html" class="navlink">Бібліотека документів</a>
+<a href="14-glossary.html" class="navlink">Глосарій термінів</a>
+<a href="15-flashcards.html" class="navlink active">Флеш-картки</a>
+<a href="16-checklist.html" class="navlink">Чек-лист підготовки</a>
+<a href="09-cheatsheet.html" class="navlink">Шпаргалка</a>
+<a href="10-test.html" class="navlink">Самоперевірка (тест)</a>
+    <button id="themeToggle" class="theme-toggle" type="button" aria-label="Перемкнути темну тему">🌙 Темна тема</button>
+    <div class="sidebar-footer">Сезон 2026/27<br>Сайт підготовлено 13.07.2026</div>
+  </nav>
+  <main class="content">
+    <h1 class="page-title">Флеш-картки</h1>
+    <section id="flash-intro" class="card">
+    <h2>Флеш-картки</h2>
+    
+  <p>Швидкий режим повторення: натисніть на картку, щоб побачити відповідь, і рухайтесь далі кнопками. Оберіть колоду вище — терміни глосарію або видові коди.</p>
+  <div id="flashApp" class="flashcards">
+    <div class="flash-tabs">
+      <button class="flash-tab active" data-deck="terms" type="button">Терміни (49)</button>
+      <button class="flash-tab" data-deck="codes" type="button">Коди видів (31)</button>
+    </div>
+    <div class="flash-progress" id="flashProgress">1 / 49</div>
+    <div class="flashcard" id="flashCard" tabindex="0" role="button" aria-label="Натисніть, щоб перевернути картку">
+      <div class="flashcard-face flashcard-front" id="flashFront"></div>
+      <div class="flashcard-face flashcard-back" id="flashBack" style="display:none;"></div>
+    </div>
+    <div class="flash-controls">
+      <button id="flashPrev" class="btn btn-secondary" type="button">← Назад</button>
+      <button id="flashFlip" class="btn" type="button">Перевернути</button>
+      <button id="flashNext" class="btn btn-secondary" type="button">Далі →</button>
+    </div>
+    <div class="flash-controls">
+      <button id="flashShuffle" class="btn btn-secondary" type="button">🔀 Перемішати</button>
+      <button id="flashRestart" class="btn btn-secondary" type="button">↺ Спочатку</button>
+    </div>
+  </div>
+  <script type="application/json" id="flashData">{"terms":[{"front":"Set / Haul<br><span class=\"flash-pron\">[сет / гол]</span>","back":"<strong>Постановка / виборка</strong><br>Одна операція закидання (set) або підняття (haul) ярусу; Haul ID — наскрізний номер конкретної виборки."},{"front":"Streamer line<br><span class=\"flash-pron\">[стрі́мер лайн]</span>","back":"<strong>Стример-лінія</strong><br>Лінія зі стрічками-відлякувачами над ярусом під час постановки — зменшує прилов морських птахів (CM 25-02)."},{"front":"Holding tank<br><span class=\"flash-pron\">[го́улдін тенк]</span>","back":"<strong>Накопичувальний резервуар</strong><br>Ємність з проточною водою для тимчасового утримання риби перед міченням чи випуском."},{"front":"Longline<br><span class=\"flash-pron\">[ло́нглайн]</span>","back":"<strong>Ярус</strong><br>Знаряддя лову: довга головна лінія з численними наживленими гачками на повідцях."},{"front":"Trotline<br><span class=\"flash-pron\">[тро́тлайн]</span>","back":"<strong>Тротлайн</strong><br>Ярус, де гачки прикріплені кластерами до плавучої головної лінії через троти (відгалуження)."},{"front":"Spanish line<br><span class=\"flash-pron\">[спе́ніш лайн]</span>","back":"<strong>Іспанська снасть</strong><br>Ярус з додатковою становою лінією (backbone), приєднаною до головної лінії."},{"front":"Mainline<br><span class=\"flash-pron\">[ме́йнлайн]</span>","back":"<strong>Головна лінія</strong><br>Основна лінія ярусу, до якої кріпляться повідці з гачками."},{"front":"Snood<br><span class=\"flash-pron\">[снуд]</span>","back":"<strong>Повідець (снуд)</strong><br>Короткий відрізок лески між головною лінією та гачком."},{"front":"Bait<br><span class=\"flash-pron\">[бейт]</span>","back":"<strong>Приманка</strong><br>Наживка на гачку (кальмар, скумбрія тощо)."},{"front":"Green weight<br><span class=\"flash-pron\">[грін вейт]</span>","back":"<strong>Зелена вага</strong><br>Вага риби до переробки (цілої, як щойно виловлена)."},{"front":"Processed weight<br><span class=\"flash-pron\">[про́усест вейт]</span>","back":"<strong>Вага продукту</strong><br>Вага риби після переробки (філе, потрошена тощо)."},{"front":"Conversion factor<br><span class=\"flash-pron\">[конве́ршн фе́ктор]</span>","back":"<strong>Коефіцієнт переведення</strong><br>Співвідношення зеленої ваги до ваги переробленого продукту."},{"front":"Bycatch<br><span class=\"flash-pron\">[ба́йкетч]</span>","back":"<strong>Прилов</strong><br>Улов видів, що не є цільовими для промислу."},{"front":"Discard<br><span class=\"flash-pron\">[діска́рд]</span>","back":"<strong>Викид</strong><br>Улов, викинутий назад у море (живим або мертвим)."},{"front":"Line segment<br><span class=\"flash-pron\">[лайн се́гмент]</span>","back":"<strong>Сегмент лінії</strong><br>Секція ярусу на 1000 гачків або 1200 м (яка коротша) — облікова одиниця для ВМЕ."},{"front":"Trigger level<br><span class=\"flash-pron\">[три́ггер левл]</span>","back":"<strong>Тригерний рівень</strong><br>Поріг (5+ одиниць-індикаторів ВМЕ на сегмент), що вимагає обов'язкового відбору проб."},{"front":"Cruise report<br><span class=\"flash-pron\">[круз ріпо́рт]</span>","back":"<strong>Звіт про рейс</strong><br>Підсумковий описовий документ спостерігача після завершення рейсу."},{"front":"Vessel notification<br><span class=\"flash-pron\">[ве́сл ноутіфіке́йшн]</span>","back":"<strong>Нотифікація судна</strong><br>Офіційне повідомлення CCAMLR про намір судна вести промисел."},{"front":"Waste disposal<br><span class=\"flash-pron\">[вейст діспо́узл]</span>","back":"<strong>Утилізація відходів</strong><br>Процедури поводження зі сміттям і втраченим знаряддям лову на борту."},{"front":"Grid / Mesh panel<br><span class=\"flash-pron\">[ґрід / меш пе́нел]</span>","back":"<strong>Решітка / сітчаста панель</strong><br>Два типи пристроїв виключення морських ссавців із трала."},{"front":"CCAMLR<br><span class=\"flash-pron\">[сі-кем-ла́р]</span>","back":"<strong>Commission for the Conservation of Antarctic Marine Living Resources</strong><br>Комісія зі збереження морських живих ресурсів Антарктики."},{"front":"SISO<br><span class=\"flash-pron\">[са́йсоу]</span>","back":"<strong>Scheme of International Scientific Observation</strong><br>Схема міжнародного наукового спостереження CCAMLR."},{"front":"VME<br><span class=\"flash-pron\">[ві-ем-і]</span>","back":"<strong>Vulnerable Marine Ecosystem</strong><br>Вразлива морська екосистема."},{"front":"IMAF<br><span class=\"flash-pron\">[а́ймаф]</span>","back":"<strong>Incidental Mortality Associated with Fishing</strong><br>Випадкова смертність морських птахів/ссавців, пов'язана з промислом."},{"front":"SDRAL<br><span class=\"flash-pron\">[ес-ді-ар-ей-е́л]</span>","back":"<strong>Scales in a Diagonal Row from Anus to Lateral line</strong><br>Кількість лусок у діагональному ряду від ануса до бічної лінії (ключова ознака Macrourus spp.)."},{"front":"CDS<br><span class=\"flash-pron\">[сі-ді-е́с]</span>","back":"<strong>Catch Documentation Scheme</strong><br>Схема документування вилову клича."},{"front":"VMS<br><span class=\"flash-pron\">[ві-ем-е́с]</span>","back":"<strong>Vessel Monitoring System</strong><br>Супутникова система моніторингу суден."},{"front":"IUU<br><span class=\"flash-pron\">[ай-ю-ю]</span>","back":"<strong>Illegal, Unreported and Unregulated (fishing)</strong><br>Незаконний, незареєстрований і нерегульований промисел."},{"front":"WG-FSA<br><span class=\"flash-pron\">[дабл'ю-джі еф-ес-е́й]</span>","back":"<strong>Working Group on Fish Stock Assessment</strong><br>Робоча група CCAMLR з оцінки рибних запасів."},{"front":"CEMP<br><span class=\"flash-pron\">[семп]</span>","back":"<strong>CCAMLR Ecosystem Monitoring Program</strong><br>Програма моніторингу екосистеми CCAMLR."},{"front":"EEZ<br><span class=\"flash-pron\">[і-і-зе́д]</span>","back":"<strong>Exclusive Economic Zone</strong><br>Виключна економічна зона."},{"front":"MRCC<br><span class=\"flash-pron\">[ем-ар-сі-сі]</span>","back":"<strong>Maritime Rescue Co-ordination Centre</strong><br>Морський рятувально-координаційний центр."},{"front":"COLTO<br><span class=\"flash-pron\">[ко́лтоу]</span>","back":"<strong>Coalition of Legal Toothfish Operators</strong><br>Коаліція легальних операторів промислу клича — пропонує приз за знайдені мітки."},{"front":"SSRU<br><span class=\"flash-pron\">[ес-ес-ар-ю]</span>","back":"<strong>Small-Scale Research Unit</strong><br>Дрібномасштабна дослідницька одиниця (поділ підрайону для управління промислом)."},{"front":"UTC<br><span class=\"flash-pron\">[ю-ті-сі]</span>","back":"<strong>Coordinated Universal Time</strong><br>Всесвітній координований час — обов'язковий формат часу в усіх формах спостерігача."},{"front":"NIWA<br><span class=\"flash-pron\">[ні́ва]</span>","back":"<strong>National Institute of Water and Atmospheric Research</strong><br>Новозеландський науковий інститут — видавець визначника Ross Sea Fishes."},{"front":"ASOC<br><span class=\"flash-pron\">[е́йсок]</span>","back":"<strong>Antarctic and Southern Ocean Coalition</strong><br>Природоохоронна коаліція — видавець постера китоподібних (не CCAMLR)."},{"front":"Gonad<br><span class=\"flash-pron\">[ґо́унед]</span>","back":"<strong>Гонада</strong><br>Статева залоза (яєчник або сім'яник); за її станом визначають стадію зрілості риби."},{"front":"Otolith<br><span class=\"flash-pron\">[о́утоліт]</span>","back":"<strong>Отоліт</strong><br>Кальцинована структура внутрішнього вуха риби; за кільцями росту визначають вік."},{"front":"Standard length (SL)<br><span class=\"flash-pron\">[сте́ндард ленгс]</span>","back":"<strong>Стандартна довжина</strong><br>Від кінчика писка до кінця хребетного стовпа (без хвостового плавця)."},{"front":"Total length (TL)<br><span class=\"flash-pron\">[то́утал ленгс]</span>","back":"<strong>Загальна довжина</strong><br>Від кінчика писка до найдальшого кінчика хвоста."},{"front":"Wingspan (WS)<br><span class=\"flash-pron\">[ві́нгспен]</span>","back":"<strong>Розмах крил</strong><br>Ширина диска ската від кінчика до кінчика грудних плавців («крил»)."},{"front":"Snout to anus (SA)<br><span class=\"flash-pron\">[снаут ту е́йнас]</span>","back":"<strong>Довжина писок-анус</strong><br>Вимір для довгохвостів (Macrourus spp.) — від кінчика писка до анального отвору."},{"front":"Maturity stage<br><span class=\"flash-pron\">[мет'ю́риті стейдж]</span>","back":"<strong>Стадія зрілості</strong><br>Класифікація ступеня розвитку гонад (наприклад, F1–F5 для самок клича)."},{"front":"Predation<br><span class=\"flash-pron\">[приде́йшн]</span>","back":"<strong>Хижацтво</strong><br>Поїдання риби хижаком (наприклад, косаткою) під час виборки ярусу."},{"front":"Depredation<br><span class=\"flash-pron\">[депридейшн]</span>","back":"<strong>Депредація</strong><br>Крадіжка риби чи наживки хижаком з гачків без повного поїдання (частковий вилов)."},{"front":"Codend<br><span class=\"flash-pron\">[код-е́нд]</span>","back":"<strong>Куток сітки</strong><br>Кінцева, найвужча частина трала, де накопичується улов."},{"front":"Sub-sample<br><span class=\"flash-pron\">[саб-се́мпл]</span>","back":"<strong>Суб-вибірка</strong><br>Частина загального вилову, відібрана для детального біологічного аналізу."},{"front":"Species code<br><span class=\"flash-pron\">[спі́шіз коуд]</span>","back":"<strong>Видовий код</strong><br>Стандартизований трилітерний код виду (наприклад, TOA для Dissostichus mawsoni)."}],"codes":[{"front":"TOA","back":"<em>Dissostichus mawsoni</em><br>Антарктичний клич (цільовий вид)"},{"front":"TOP","back":"<em>Dissostichus eleginoides</em><br>Патагонський клич (цільовий вид)"},{"front":"TOT","back":"<em>Dissostichus spp</em><br>Клич, невизначений до виду"},{"front":"GRV","back":"<em>Macrourus spp</em><br>Довгохвости (родина Macrouridae), nei"},{"front":"QMC","back":"<em>Macrourus caml</em><br>Довгохвіст Macrourus caml"},{"front":"WGR","back":"<em>Macrourus whitsoni</em><br>Довгохвіст Вітсона"},{"front":"MCH","back":"<em>Macrourus holotrachys</em><br>Великоокий довгохвіст"},{"front":"MCC","back":"<em>Macrourus carinatus</em><br>Гребенястий довгохвіст"},{"front":"ANT","back":"<em>Antimora rostrata</em><br>Синя антимора"},{"front":"MRL","back":"<em>Muraenolepis spp</em><br>Мурени-тріскові, nei"},{"front":"MVC","back":"<em>Muraenolepis marmorata</em><br>Мармурова мурена-тріскова"},{"front":"CHW","back":"<em>Chionobathyscus dewitti</em><br>Крижана риба Девітта"},{"front":"ICX","back":"<em>Channichthyidae</em><br>Крокодилові крижані риби, nei"},{"front":"ANI","back":"<em>Champsocephalus gunnari</em><br>Макрелева крижана риба"},{"front":"LIC","back":"<em>Channichthys rhinoceratus</em><br>Одноріг (крижана риба)"},{"front":"TRT","back":"<em>Trematomus spp</em><br>Трематомус, nei"},{"front":"POG","back":"<em>Pogonophryne spp</em><br>Плундерфіш (бородаті вудильники), nei"},{"front":"SRR","back":"<em>Amblyraja georgiana</em><br>Антарктичний зірчастий скат"},{"front":"BAM","back":"<em>Bathyraja maccaini</em><br>Скат Мак-Кейна"},{"front":"BEA","back":"<em>Bathyraja eatonii</em><br>Скат Ітона"},{"front":"BYE","back":"<em>Bathyraja meridionalis</em><br>Темночеревий скат"},{"front":"BYG","back":"<em>Bathyraja griseocauda</em><br>Сіровохвостий скат"},{"front":"RAJ","back":"<em>Rajidae</em><br>Скати, nei"},{"front":"ELN","back":"<em>Electrona antarctica</em><br>Антарктична світлякова рибка"},{"front":"ELC","back":"<em>Electrona carlsbergi</em><br>Субантарктична світлякова рибка"},{"front":"MZZ","back":"<em>Actinopterygii</em><br>Морські риби, nei (загальний код)"},{"front":"SEA","back":"<em>Arctocephalus gazella</em><br>Антарктичний морський котик"},{"front":"SES","back":"<em>Mirounga leonina</em><br>Південний морський слон"},{"front":"SET","back":"<em>Lobodon carcinophagus</em><br>Тюлень-крабоїд"},{"front":"SLW","back":"<em>Leptonychotes weddellii</em><br>Тюлень Уеддела"},{"front":"SLP","back":"<em>Hydrurga leptonyx</em><br>Тюлень-леопард"}]}</script>
+  <div class="comment"><strong>Коментар:</strong> Колода «Терміни» складена з розділу «Глосарій термінів», колода «Коди видів» — з видових кодів, використаних у розділах 3.1, 6.6 і 6.7 сайту.</div>
+
+  </section>
+    <footer class="page-footer">
+      <p>Сайт створено на основі 21 офіційного та довідкового документа CCAMLR/SISO, наданих для підготовки до семінару та іспиту. Усі коментарі позначені як <strong>Коментар</strong> є авторськими примітками і не є офіційною позицією CCAMLR.</p>
+    </footer>
+  </main>
+</div>
+<div class="species-modal-overlay" id="speciesModalOverlay">
+  <div class="species-modal" role="dialog" aria-modal="true" aria-labelledby="speciesModalUa">
+    <button class="species-modal-close" id="speciesModalClose" aria-label="Закрити">✕</button>
+    <div id="speciesModalImgWrap"></div>
+    <div class="species-modal-body">
+      <span class="species-modal-code" id="speciesModalCode" style="display:none;"></span>
+      <div class="species-modal-ua" id="speciesModalUa"></div>
+      <div class="species-modal-latin" id="speciesModalLatin"></div>
+      <div class="species-modal-note" id="speciesModalNote"></div>
+    </div>
+  </div>
+</div>
+<button id="backToTop" class="back-to-top" type="button" aria-label="Нагору">↑</button>
+<script src="js/search-index.js"></script>
+<script src="js/script.js"></script>
+<script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+</body>
+</html>
