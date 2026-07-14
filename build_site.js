@@ -17,6 +17,7 @@ const NAV = [
   ["08-tagging.html", "8. Мічення (Tagging)"],
   ["11-templates.html", "11. Заповнення журналів"],
   ["12-species-cards.html", "12. Картки видів"],
+  ["13-library.html", "Бібліотека документів"],
   ["09-cheatsheet.html", "Шпаргалка"],
   ["10-test.html", "Самоперевірка (тест)"]
 ];
@@ -243,6 +244,7 @@ ${ul([
 ${section("useful-links", "Корисні офіційні посилання CCAMLR", `
 ${p("Ці ресурси не входять до пакету з 21 наданого документа, але корисні під час реального рейсу — не лише для підготовки до іспиту. Знайдено на офіційному сайті <a href='https://www.ccamlr.org' target='_blank' rel='noopener'>ccamlr.org</a>.")}
 ${table(["Ресурс","Навіщо спостерігачу"], [
+  ["<a href='https://www.ccamlr.org/ru/organisation/об-антком' target='_blank' rel='noopener'>Про АНТКОМ (офіційна сторінка, рос.)</a>","Загальний опис організації, мандату та структури Комісії з питань збереження морських живих ресурсів Антарктики — корисно для розуміння контексту роботи спостерігача"],
   ["<a href='https://www.ccamlr.org/en/compliance/list-vessel-authorisations' target='_blank' rel='noopener'>Список авторизованих суден</a>","Звірити судно з офіційним переліком — актуально для розділу «IUU Sightings» (4.12)"],
   ["<a href='https://www.ccamlr.org/en/node/124626' target='_blank' rel='noopener'>Vessel sighting form</a>","Офіційна форма звітування про спостереження суден — доповнює журнал IUU"],
   ["<a href='https://www.ccamlr.org/en/node/121823' target='_blank' rel='noopener'>Unidentified gear reporting</a>","Форма звітування про невідоме знаряддя, знайдене в морі — доповнює розділ «Waste Disposal» (4.11)"],
@@ -1471,6 +1473,65 @@ section("species-whales", "12.4 Кити та дельфіни — картки 
 `);
 
 // =====================================================================
+// PAGE 13 — БІБЛІОТЕКА ДОКУМЕНТІВ
+// =====================================================================
+
+function libRow(name, desc) {
+  const href = docMap[name];
+  const ext = (name.split(".").pop() || "").toUpperCase();
+  const actions = href
+    ? `<a href="${href}" target="_blank" rel="noopener">↗ Переглянути</a><br><a href="${href}" download>⬇ Завантажити</a>`
+    : "—";
+  return [`<strong>${name}</strong><br><span class="muted">${ext}</span>`, desc, actions];
+}
+
+function libSection(id, title, rows) {
+  return section(id, title, `
+    ${table(["Документ", "Опис / де використовується на сайті", "Дії"], rows)}
+  `);
+}
+
+const page13 =
+libSection("lib-1", "1. Керівні документи (3)", [
+  libRow("e-pt1_3.pdf", "Текст Конвенції про збереження морських живих ресурсів Антарктики — використано в розділі 1.1."),
+  libRow("e-pt10_4.pdf", "Схема міжнародного наукового спостереження CCAMLR (SISO) — розділ 1.2."),
+  libRow("e-SISO Manual Finfish Fisheries 2026.pdf", "Scientific Observer's Manual — Finfish Fisheries 2026, основний посібник спостерігача — розділ 1.3.")
+]) +
+libSection("lib-2", "2. Заходи зі збереження (1)", [
+  libRow("EN - schedule 2025-26.pdf", "Розклад чинних заходів зі збереження сезону 2025/26 (Schedule of Conservation Measures) — розділ 2.1.")
+]) +
+libSection("lib-3", "3. Форми головні (4)", [
+  libRow("en_C2_2026a.xlsx", "Форма електронного ярусного журналу en_C2v2026a — розділ 3.1."),
+  libRow("CCAMLR Scientific Observer Longline Vessel Cruise Report 2026.docx", "Звіт про рейс наукового спостерігача 2026 — розділ 3.2."),
+  libRow("EN - Movement_10-04 Annex A.xlsx", "Довідник переміщення суден, Annex 10-04/A — розділ 3.3."),
+  libRow("CCAMLR Tag Overlap Statistic Calculator_v2026.xlsm", "Калькулятор статистики перекриття мічення v2026 — розділ 3.4.")
+]) +
+libSection("lib-4", "4. Форми та інструкції (2)", [
+  libRow("2026 Observer Longline Logbook Instructions.pdf", "Інструкція з електронного ярусного журналу, версія OL_v2026 — розділ 4.1."),
+  libRow("EN - C2 Longline Fisheries Commercial data manual 2025_1.pdf", "Commercial Data Collection Manual — Longline Fisheries 2025 — розділ 4.3.")
+]) +
+libSection("lib-5", "5. Знаряддя лова (1)", [
+  libRow("Illustrated generic gear diagrams_2023 v1.3.docx", "Ілюстровані генеричні схеми ярусного знаряддя лова v1.3 — розділ 5.1.")
+]) +
+libSection("lib-6", "6. Визначники (7)", [
+  libRow("Identification Guide for Toothfish (poster).pdf", "Офіційний постер-визначник клича (Identification Guide for Toothfish) — розділ 6.1."),
+  libRow("DIssostichis eleginoides gonad guide.docx", "Атлас стадій зрілості гонад Dissostichus eleginoides — розділ 6.3."),
+  libRow("Easy Identification Keys for Grenadiers in 88.1 and 88.3_Sagndeok.pdf", "Ключі визначення долгохвостів роду Macrourus у підрайонах 88.1 і 88.3 — розділ 6.4."),
+  libRow("Fishes of the Ross Sea Region_A field guide to common species caught in the longline fishery (2015).pdf", "Польовий визначник «Fishes of the Ross Sea Region» (2015) — основне джерело фотокарток видів у розділах 6.5 і 12.1–12.2."),
+  libRow("риба.doc", "Довідка з фотографіями видів риб і кодами — розділ 6.6."),
+  libRow("CCAMLR protocols for pinniped identification (1).docx", "Протокол ідентифікації, статі та промірів ластоногих — розділ 6.7 і карткии видів 12.3."),
+  libRow("SOUTHERN OCEAN whales and dolphins (ASOC poster).pdf", "Постер ASOC «Southern Ocean whales and dolphins» — розділ 6.8 і картки видів 12.4.")
+]) +
+libSection("lib-7", "7. VME (1)", [
+  libRow("CCAMLR_VME_guide_2023V2.pdf", "CCAMLR VME Taxa Classification Guide 2023, версія 2 — розділ 7.1.")
+]) +
+libSection("lib-8", "8. Мічення / Tagging (2)", [
+  libRow("EN - Toothfish and Skate Tagging Manual 2025.docx", "Toothfish and Skate Tagging Manual, версія 2025 — розділ 8.1."),
+  libRow("e-tagging procedures-2020.docx", "Опитування щодо процедур мічення на судні (2020) — розділ 8.3.")
+]) +
+comment("Це всі 21 первинних документа, надані для підготовки до семінару та іспиту. Файли відкриваються в новій вкладці або завантажуються напряму з сайту — окремо шукати їх не потрібно.");
+
+// =====================================================================
 // PAGE 09 — CHEATSHEET
 // =====================================================================
 
@@ -1850,6 +1911,7 @@ fs.writeFileSync("09-cheatsheet.html", layout("Шпаргалка", "09-cheatshe
 fs.writeFileSync("10-test.html", layout("Самоперевірка (тест)", "10-test.html", page10));
 fs.writeFileSync("11-templates.html", layout("Заповнення журналів", "11-templates.html", page11));
 fs.writeFileSync("12-species-cards.html", layout("Картки видів", "12-species-cards.html", page12));
+fs.writeFileSync("13-library.html", layout("Бібліотека документів", "13-library.html", page13, { description: "Каталог усіх 21 первинних документів CCAMLR/SISO, використаних на сайті, з можливістю перегляду та завантаження." }));
 
 // =====================================================================
 // SEARCH INDEX
@@ -1879,6 +1941,7 @@ const searchPages = [
   ["08-tagging.html", "8. Мічення (Tagging)", page08],
   ["11-templates.html", "Заповнення журналів", page11],
   ["12-species-cards.html", "Картки видів", page12],
+  ["13-library.html", "Бібліотека документів", page13],
   ["09-cheatsheet.html", "Шпаргалка", page09],
   ["10-test.html", "Самоперевірка (тест)", page10]
 ];
