@@ -130,6 +130,13 @@ function speciesCard(c) {
   const imgHtml = c.img
     ? `<div class="species-card-img"><img src="${c.img}" loading="lazy" alt="${(c.ua||"").replace(/"/g,'')}"></div>`
     : `<div class="species-card-img species-card-noimg">${c.icon || "🐟"}</div>`;
+  // sourceLink: an optional external link to a verified, appropriately licensed photo
+  // (FishBase, iNaturalist, Wikimedia Commons with CC license, etc.) — used instead of
+  // embedding the actual photo file, since the actual bitmap belongs to its author/license
+  // and copying it into this repo would require clearing that per-image, per-source.
+  const sourceHtml = c.sourceLink
+    ? `<a class="species-source-link" href="${escAttr(c.sourceLink)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">🔗 ${escAttr(c.sourceLabel || "Фото виду (зовнішнє джерело)")}</a>`
+    : "";
   return `<div class="species-card" tabindex="0" role="button"
       data-img="${escAttr(c.img || "")}"
       data-icon="${escAttr(c.icon || "🐟")}"
@@ -143,6 +150,7 @@ function speciesCard(c) {
       <div class="species-ua">${c.ua}</div>
       <div class="species-latin">${c.latin}</div>
       ${c.note ? `<div class="species-note">${c.note}</div>` : ""}
+      ${sourceHtml}
     </div>
   </div>`;
 }
@@ -1311,10 +1319,34 @@ fishSpeciesCards.sort((a, b) => a.ua.localeCompare(b.ua, "uk"));
 // (section 3.1, speciesCodesCurated) but have no dedicated photo in any
 // source document — computed by exclusion so it stays correct automatically
 // if the photo set above ever changes.
+//
+// No photo file is embedded here for any of these — the actual bitmaps found
+// online belong to their photographers/sources and copying them into this
+// repo would need per-image licence clearance. Instead: (a) for genuine
+// species-level codes, a link to a verified external source page (FishBase /
+// Wikimedia Commons file page with a stated CC licence) is given so the
+// person can view a real, correctly-identified photo; (b) for genus/family/
+// class-level "nei" codes, a cross-reference note points to the individual
+// member species already photographed in section 12.1 above, since one
+// single external photo cannot honestly represent an entire genus or family.
+const fishNoPhotoExtra = {
+  MVC: { sourceLink: "https://www.fishbase.se/summary/Muraenolepis-marmorata", sourceLabel: "Фото на FishBase" },
+  ANI: { sourceLink: "https://commons.wikimedia.org/wiki/File:Mackerel_Icefish_(Champsocephalus_gunnari).jpg", sourceLabel: "Фото на Wikimedia Commons (CC BY-SA 2.0, Ryan Somma)" },
+  LIC: { sourceLink: "https://www.inaturalist.org/taxa/541731-Channichthys-rhinoceratus/browse_photos", sourceLabel: "Фото на iNaturalist" },
+  BYE: { sourceLink: "https://www.fishbase.se/summary/Bathyraja-meridionalis", sourceLabel: "Фото на FishBase" },
+  BYG: { sourceLink: "https://www.inaturalist.org/taxa/95498-Bathyraja-griseocauda/browse_photos", sourceLabel: "Фото на iNaturalist" },
+  ELN: { sourceLink: "https://www.inaturalist.org/taxa/617783-Electrona-antarctica/browse_photos", sourceLabel: "Фото на iNaturalist" },
+  ELC: { sourceLink: "https://www.fishbase.se/summary/6985", sourceLabel: "Фото на FishBase" },
+  TOT: { note: "Рід включає TOA й TOP — фото обох видів у розділі 12.1 вище." },
+  GRV: { note: "Рід включає QMC, WGR, MCH, MCC — фото всіх чотирьох видів у розділі 12.1 вище." },
+  ICX: { note: "Родина включає CHW, TIC, FIC, DAH, JIC — фото цих видів у розділі 12.1 вище." },
+  TRT: { note: "Рід включає ERN, TRL, TRD, TLO, PTC — фото всіх п'яти видів у розділі 12.1 вище." },
+  RAJ: { note: "Родина включає SRR (Amblyraja georgiana) — фото у розділі 12.1 вище." }
+};
 const coveredFishCodes = new Set(fishSpeciesCards.map(c => c.code));
 const fishNoPhotoCards = speciesCodesCurated
   .filter(([code]) => !coveredFishCodes.has(code))
-  .map(([code, latin, ua]) => ({ code, latin, ua, icon: "🐟" }));
+  .map(([code, latin, ua]) => Object.assign({ code, latin, ua, icon: "🐟" }, fishNoPhotoExtra[code] || {}));
 
 // Pinniped cards — reuse the verified species table (section 6.7) plus one
 // representative photo per species from the confirmed pinniped2 gallery.

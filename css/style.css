@@ -215,6 +215,15 @@ figure.wide img { max-width: 100%; }
 .species-ua { font-weight: 700; font-size: 0.9rem; color: var(--text); line-height: 1.25; }
 .species-latin { font-style: italic; font-size: 0.8rem; color: var(--accent2); }
 .species-note { font-size: 0.76rem; color: var(--gray); margin-top: 2px; line-height: 1.3; }
+.species-source-link {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--accent2);
+  text-decoration: none;
+}
+.species-source-link:hover { text-decoration: underline; }
 
 /* Species card modal (lightbox) */
 .species-modal-overlay {
