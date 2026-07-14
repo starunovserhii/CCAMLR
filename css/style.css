@@ -30,6 +30,8 @@ html[data-theme="dark"] .species-card-img,
 html[data-theme="dark"] .species-modal-img { background: #0c1219; }
 html[data-theme="dark"] .comment { background: #3a2f0a; color: #f0e0a8; }
 html[data-theme="dark"] .comment strong { color: #ffd76b; }
+html[data-theme="dark"] tbody tr:nth-child(even) { background: #1e2d3b; }
+html[data-theme="dark"] tbody tr:hover { background: var(--accent-light); }
 * { box-sizing: border-box; }
 body {
   margin: 0;
