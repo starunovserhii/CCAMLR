@@ -15,8 +15,8 @@ const NAV = [
   ["06-identification.html", "6. Визначники"],
   ["07-vme.html", "7. VME"],
   ["08-tagging.html", "8. Мічення (Tagging)"],
-  ["12-species-cards.html", "Картки видів"],
-  ["11-templates.html", "Заповнення журналів"],
+  ["11-templates.html", "11. Заповнення журналів"],
+  ["12-species-cards.html", "12. Картки видів"],
   ["09-cheatsheet.html", "Шпаргалка"],
   ["10-test.html", "Самоперевірка (тест)"]
 ];
