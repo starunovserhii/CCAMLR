@@ -1519,7 +1519,7 @@ libSection("lib-6", "6. Визначники (7)", [
   libRow("Easy Identification Keys for Grenadiers in 88.1 and 88.3_Sagndeok.pdf", "Ключі визначення долгохвостів роду Macrourus у підрайонах 88.1 і 88.3 — розділ 6.4."),
   libRow("Fishes of the Ross Sea Region_A field guide to common species caught in the longline fishery (2015).pdf", "Польовий визначник «Fishes of the Ross Sea Region» (2015) — основне джерело фотокарток видів у розділах 6.5 і 12.1–12.2."),
   libRow("риба.doc", "Довідка з фотографіями видів риб і кодами — розділ 6.6."),
-  libRow("CCAMLR protocols for pinniped identification (1).docx", "Протокол ідентифікації, статі та промірів ластоногих — розділ 6.7 і карткии видів 12.3."),
+  libRow("CCAMLR protocols for pinniped identification (1).docx", "Протокол ідентифікації, статі та промірів ластоногих — розділ 6.7 і картки видів 12.3."),
   libRow("SOUTHERN OCEAN whales and dolphins (ASOC poster).pdf", "Постер ASOC «Southern Ocean whales and dolphins» — розділ 6.8 і картки видів 12.4.")
 ]) +
 libSection("lib-7", "7. VME (1)", [
