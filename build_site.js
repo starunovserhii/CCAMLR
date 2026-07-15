@@ -7,22 +7,27 @@ const path = require("path");
 
 const NAV = [
   ["index.html", "Головна"],
+  { group: "Основи" },
   ["01-governing.html", "Керівні документи"],
   ["02-measures.html", "Заходи зі збереження"],
-  ["03-forms-main.html", "Форми головні"],
-  ["04-forms-instructions.html", "Форми та інструкції"],
-  ["05-gear.html", "Знаряддя лова"],
+  ["18-inspection.html", "Інспекційна система"],
+  { group: "Промисел і види" },
   ["06-identification.html", "Визначники"],
+  ["12-species-cards.html", "Картки видів"],
+  ["05-gear.html", "Знаряддя лова"],
+  ["17-other-fisheries.html", "Інші промисли (криль/кальмари/краби)"],
   ["07-vme.html", "VME"],
   ["08-tagging.html", "Мічення (Tagging)"],
+  { group: "Форми спостерігача" },
+  ["03-forms-main.html", "Форми головні"],
+  ["04-forms-instructions.html", "Форми та інструкції"],
   ["11-templates.html", "Заповнення журналів"],
-  ["12-species-cards.html", "Картки видів"],
+  { group: "Довідники" },
   ["13-library.html", "Бібліотека документів"],
   ["14-glossary.html", "Глосарій термінів"],
   ["15-flashcards.html", "Флеш-картки"],
+  { group: "Підготовка до іспиту" },
   ["16-checklist.html", "Чек-лист підготовки"],
-  ["17-other-fisheries.html", "Інші промисли (криль/кальмари/краби)"],
-  ["18-inspection.html", "Інспекційна система"],
   ["19-internship.html", "Програма стажування"],
   ["09-cheatsheet.html", "Шпаргалка"],
   ["10-test.html", "Самоперевірка (тест)"]
@@ -32,9 +37,13 @@ const SITE_DESCRIPTION_DEFAULT = "Український сайт підгото
 
 function layout(title, active, bodyHtml, opts) {
   opts = opts || {};
-  const navHtml = NAV.map(([href, label]) =>
-    `<a href="${href}" class="navlink${href === active ? " active" : ""}">${label}</a>`
-  ).join("\n");
+  const navHtml = NAV.map((item) => {
+    if (!Array.isArray(item)) {
+      return `<div class="nav-group-label">${item.group}</div>`;
+    }
+    const [href, label] = item;
+    return `<a href="${href}" class="navlink${href === active ? " active" : ""}">${label}</a>`;
+  }).join("\n");
   const pageDescription = opts.description || SITE_DESCRIPTION_DEFAULT;
   const canonicalUrl = "https://starunovserhii.github.io/CCAMLR/" + active;
   return `<!DOCTYPE html>
