@@ -434,6 +434,17 @@ document.addEventListener("DOMContentLoaded", function () {
     cheatsheetPrintBtn.addEventListener("click", function () { window.print(); });
   }
 
+  // Lecture accordion toggles (only present on 19-internship.html)
+  document.querySelectorAll(".lecture-toggle").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var targetId = btn.getAttribute("data-target");
+      var row = document.getElementById(targetId);
+      if (!row) return;
+      var isOpen = row.classList.toggle("open");
+      btn.textContent = isOpen ? "▲ Сховати" : "▼ Лекція";
+    });
+  });
+
   // Quiz logic (only present on 10-test.html)
   var form = document.getElementById("quizForm");
   if (!form) return;

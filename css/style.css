@@ -438,6 +438,15 @@ figure.wide img { max-width: 100%; }
 .btn-star { background: var(--accent-light); color: var(--accent); }
 .btn-star:hover { background: #ffe9a8; }
 .btn-star.active { background: #ffd76b; color: #5c3d00; }
+.lecture-toggle { background: var(--accent-light); color: var(--accent); border: 1px solid var(--accent2); border-radius: 6px; padding: 5px 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.lecture-toggle:hover { background: #ffe9a8; }
+.lecture-row { display: none; }
+.lecture-row.open { display: table-row; }
+.lecture-row td { background: var(--accent-light); padding: 14px 18px; }
+.lecture-text { font-size: 0.95rem; line-height: 1.6; }
+.lecture-text p { margin: 0 0 10px; }
+.lecture-text p:last-child { margin-bottom: 0; }
+html[data-theme="dark"] .lecture-row td { background: #23384a; }
 .exam-panel { background: var(--accent-light); border: 1px solid var(--accent2); border-radius: 10px; padding: 14px 18px; margin: 14px 0; }
 .exam-setup { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 8px; }
 .exam-setup label { font-size: 0.9rem; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 6px; }
