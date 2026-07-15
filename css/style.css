@@ -73,15 +73,16 @@ body {
 .nav-icon { flex-shrink: 0; width: 1.1em; text-align: center; font-size: 0.95em; line-height: 1; }
 .nav-label { flex: 1; }
 .nav-group-label {
-  font-size: 0.68rem;
+  font-size: 0.74rem;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
-  font-weight: 700;
-  color: rgba(255,255,255,0.55);
-  padding: 0 10px;
-  margin: 16px 0 4px;
+  letter-spacing: 0.09em;
+  font-weight: 800;
+  color: #ffe9a8;
+  padding: 4px 10px 7px;
+  margin: 20px 0 6px;
+  border-bottom: 1.5px solid rgba(255, 215, 107, 0.45);
 }
-.nav-group-label:first-child { margin-top: 4px; }
+.nav-group-label:first-child { margin-top: 2px; }
 .theme-toggle {
   display: block;
   width: 100%;
