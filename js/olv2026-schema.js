@@ -24,7 +24,35 @@ const SUCCESS_OPT = [["Yes", "Успішно"], ["No", "Невдало"]];
 // перелік CCAMLR (він налічує сотні кодів і залежить від сезону), а
 // найпоширеніші коди цього промислу для зручного автозаповнення. Поле
 // залишається вільним текстовим — можна ввести будь-який чинний код.
-const SPECIES_CODES = ["TOA — Dissostichus mawsoni (іклач антарктичний)", "TOP — Dissostichus eleginoides (іклач патагонський)", "GRV — Macrourus spp. (довгохвости)", "SRX — Rajiformes (скати, загальний код)", "ANI — Notothenia spp.", "Code Missing — код відсутній у списку (вказати вид у коментарі)"];
+const SPECIES_CODES = [
+  "TOA — Dissostichus mawsoni (антарктичний іклач, цільовий вид)",
+  "TOP — Dissostichus eleginoides (патагонський іклач, цільовий вид)",
+  "TOT — Dissostichus spp (іклач, невизначений до виду)",
+  "GRV — Macrourus spp (довгохвости, родина Macrouridae, nei)",
+  "QMC — Macrourus caml (довгохвіст Macrourus caml)",
+  "WGR — Macrourus whitsoni (довгохвіст Вітсона)",
+  "MCH — Macrourus holotrachys (великоокий довгохвіст)",
+  "MCC — Macrourus carinatus (гребенястий довгохвіст)",
+  "ANT — Antimora rostrata (синя антимора)",
+  "MRL — Muraenolepis spp (мурени-тріскові, nei)",
+  "MVC — Muraenolepis marmorata (мармурова мурена-тріскова)",
+  "CHW — Chionobathyscus dewitti (крижана риба Девітта)",
+  "ICX — Channichthyidae (крокодилові крижані риби, nei)",
+  "ANI — Champsocephalus gunnari (макрелева крижана риба)",
+  "LIC — Channichthys rhinoceratus (одноріг, крижана риба)",
+  "TRT — Trematomus spp (трематомус, nei)",
+  "POG — Pogonophryne spp (плундерфіш, бородаті вудильники, nei)",
+  "SRR — Amblyraja georgiana (антарктичний зірчастий скат)",
+  "BAM — Bathyraja maccaini (скат Мак-Кейна)",
+  "BEA — Bathyraja eatonii (скат Ітона)",
+  "BYE — Bathyraja meridionalis (темночеревий скат)",
+  "BYG — Bathyraja griseocauda (сіровохвостий скат)",
+  "RAJ — Rajidae (скати, nei)",
+  "ELN — Electrona antarctica (антарктична світлякова рибка)",
+  "ELC — Electrona carlsbergi (субантарктична світлякова рибка)",
+  "MZZ — Actinopterygii (морські риби, nei, загальний код)",
+  "Code Missing — код відсутній у списку (вказати вид у коментарі)",
+];
 const VME_SPECIES_CODES = ["DMO — Demospongiae (губки)", "DWR — Octocorallia (горгонарії/м'які корали)", "CWH — Hydrozoa (гідроїди)", "AGZ — Actiniaria (актинії)", "BRY — Bryozoa (мохуватки)", "CWS — Stony corals"];
 const PROCESSING_CODES = ["HGT — Headed and gutted (обезголовлена, патрана)", "WHO — Whole (ціла риба)", "HEA — Headed (обезголовлена)", "GUT — Gutted (патрана)", "FIL — Filleted (філе)"];
 const GEAR_TYPES_VESSEL = ["Autoline", "Spanish line", "Trotline", "Pot"];

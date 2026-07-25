@@ -272,8 +272,38 @@
         (f.list ? '<div class="olv-warn" data-warn-for="' + esc(name) + '"></div>' : "") +
         "</td>";
     }).join("");
-    tr.innerHTML = leadTd + cells + '<td class="olv-col-del"></td>';
+    tr.innerHTML = leadTd + cells + '<td class="olv-col-del" data-label="Дії / Actions"></td>';
     return tr;
+  }
+
+  // Чи є в цій таблиці поля з координатами під групову GPS-кнопку рядка.
+  function rowHasQuickGps(fields, tablePrefix) {
+    return fields.some(function (f) {
+      var cfg = QUICK_FILL[tablePrefix + "::" + f.k];
+      return cfg && (cfg.kind === "coord-deg" || cfg.kind === "coord-full");
+    });
+  }
+
+  // Чи має ця таблиця (крім самої Set and Haul Details) наскрізне поле
+  // Haul Number — для кнопки "той самий Haul, що й вище".
+  function rowHasHaulCopy(fields, tablePrefix) {
+    return tablePrefix !== "sethaul" && fields.some(function (f) { return f.k === "haul_no"; });
+  }
+
+  function rowActionButtonsHtml(fields, tablePrefix) {
+    var html = "";
+    if (rowHasHaulCopy(fields, tablePrefix)) {
+      html += '<button type="button" class="olv-same-haul" title="Скопіювати № Haul з рядка вище" aria-label="Скопіювати № Haul з рядка вище">= Haul↑</button>';
+    }
+    if (rowHasQuickGps(fields, tablePrefix)) {
+      html += '<button type="button" class="olv-row-gps" title="Підставити GPS в усі координатні поля цього рядка" aria-label="Підставити GPS в усі координатні поля цього рядка">📍рядок</button>';
+    }
+    html +=
+      '<button type="button" class="olv-row-up" title="Перемістити рядок вгору" aria-label="Перемістити рядок вгору">↑</button>' +
+      '<button type="button" class="olv-row-down" title="Перемістити рядок вниз" aria-label="Перемістити рядок вниз">↓</button>' +
+      '<button type="button" class="olv-dup-row" title="Дублювати рядок" aria-label="Дублювати рядок">⧉</button>' +
+      '<button type="button" class="olv-del-row" title="Видалити рядок" aria-label="Видалити рядок">✕</button>';
+    return html;
   }
 
   function buildRow(fields, tablePrefix, rowIndex) {
@@ -286,35 +316,89 @@
         (f.list ? '<div class="olv-warn" data-warn-for="' + esc(name) + '"></div>' : "") +
         "</td>";
     }).join("") +
-      '<td class="olv-col-del">' +
-      '<button type="button" class="olv-dup-row" title="Дублювати рядок" aria-label="Дублювати рядок">⧉</button>' +
-      '<button type="button" class="olv-del-row" title="Видалити рядок" aria-label="Видалити рядок">✕</button>' +
-      "</td>";
+      '<td class="olv-col-del" data-label="Дії / Actions">' + rowActionButtonsHtml(fields, tablePrefix) + "</td>";
     return tr;
+  }
+
+  // Наступне значення для наскрізного номера (haul_no/fish_no/segment_no):
+  // максимум серед уже введених значень цього поля в таблиці + 1.
+  function nextSeqValue(tbody, fieldKey) {
+    var max = 0;
+    tbody.querySelectorAll('[data-key="' + fieldKey + '"]').forEach(function (el) {
+      var v = parseInt(el.value, 10);
+      if (!isNaN(v) && v > max) max = v;
+    });
+    return max + 1;
   }
 
   function wireTable(tableEl, fields, tablePrefix) {
     var tbody = tableEl.querySelector("tbody");
     var counter = { n: 0 };
-    tableEl._addRow = function (values) {
+    tableEl._addRow = function (values, opts) {
+      opts = opts || {};
       var tr = buildRow(fields, tablePrefix, counter.n++);
       tbody.appendChild(tr);
-      if (values) setRowValues(tr, values);
+      if (values) {
+        setRowValues(tr, values);
+      } else if (!opts.noAutoSeq) {
+        fields.forEach(function (f) {
+          if (!f.seq) return;
+          var el = tr.querySelector('[data-key="' + f.k + '"]');
+          if (el && !el.value) el.value = nextSeqValue(tbody, f.k);
+        });
+      }
       return tr;
     };
     tbody.addEventListener("click", function (e) {
       var dupBtn = e.target.closest(".olv-dup-row");
       if (dupBtn) {
         var srcTr = dupBtn.closest("tr");
-        var newTr = tableEl._addRow();
+        var newTr = tableEl._addRow(null, { noAutoSeq: true });
         fields.forEach(function (f) {
           if (f.seq) return;
           var srcEl = srcTr.querySelector('[data-key="' + f.k + '"]');
           var dstEl = newTr.querySelector('[data-key="' + f.k + '"]');
           if (srcEl && dstEl) dstEl.value = srcEl.value;
         });
+        fields.forEach(function (f) {
+          if (!f.seq) return;
+          var dstEl = newTr.querySelector('[data-key="' + f.k + '"]');
+          if (dstEl && !dstEl.value) dstEl.value = nextSeqValue(tbody, f.k);
+        });
         saveDraftSoon();
         updateProgress();
+        return;
+      }
+      var sameHaulBtn = e.target.closest(".olv-same-haul");
+      if (sameHaulBtn) {
+        var curTr = sameHaulBtn.closest("tr");
+        var prevTr = curTr.previousElementSibling;
+        if (!prevTr) { if (statusEl) statusEl.textContent = "Немає рядка вище — нема звідки скопіювати № Haul."; return; }
+        var prevHaulEl = prevTr.querySelector('[data-key="haul_no"]');
+        var curHaulEl = curTr.querySelector('[data-key="haul_no"]');
+        if (prevHaulEl && curHaulEl) { curHaulEl.value = prevHaulEl.value; saveDraftSoon(); updateProgress(); }
+        return;
+      }
+      var rowGpsBtn = e.target.closest(".olv-row-gps");
+      if (rowGpsBtn) {
+        var gpsTr = rowGpsBtn.closest("tr");
+        gpsTr.querySelectorAll(".olv-quick-gps").forEach(function (b) { fillGpsInto(b); });
+        saveDraftSoon();
+        updateProgress();
+        return;
+      }
+      var upBtn = e.target.closest(".olv-row-up");
+      if (upBtn) {
+        var upTr = upBtn.closest("tr");
+        var upPrev = upTr.previousElementSibling;
+        if (upPrev) { tbody.insertBefore(upTr, upPrev); saveDraftSoon(); }
+        return;
+      }
+      var downBtn = e.target.closest(".olv-row-down");
+      if (downBtn) {
+        var downTr = downBtn.closest("tr");
+        var downNext = downTr.nextElementSibling;
+        if (downNext) { tbody.insertBefore(downNext, downTr); saveDraftSoon(); }
         return;
       }
       var btn = e.target.closest(".olv-del-row");
@@ -325,6 +409,54 @@
       saveDraftSoon();
       updateProgress();
     });
+
+    // Вставка з буфера обміну (напр. з Excel/Google Таблиць): якщо вставлені
+    // дані містять кілька рядків/стовпців (є таб/перенос рядка), розподіляємо
+    // їх по полях таблиці, починаючи з поля, куди відбувається вставка,
+    // додаючи нові рядки за потреби — замість вставки одного суцільного тексту.
+    tbody.addEventListener("paste", function (e) {
+      var target = e.target;
+      if (!target || !target.classList || !target.classList.contains("olv-input")) return;
+      var cd = e.clipboardData || window.clipboardData;
+      if (!cd) return;
+      var text = cd.getData("text");
+      if (!text || (text.indexOf("\n") === -1 && text.indexOf("\t") === -1)) return;
+      e.preventDefault();
+      var rowsText = text.replace(/\r/g, "").split("\n");
+      while (rowsText.length && rowsText[rowsText.length - 1] === "") rowsText.pop();
+      var startKeyIdx = fields.findIndex(function (f) { return f.k === target.dataset.key; });
+      if (startKeyIdx === -1) startKeyIdx = 0;
+      var startTr = target.closest("tr");
+      var trs = Array.prototype.slice.call(tbody.querySelectorAll("tr"));
+      var startRowIdx = trs.indexOf(startTr);
+      rowsText.forEach(function (rowText, ri) {
+        var cols = rowText.split("\t");
+        var rowIdx = startRowIdx + ri;
+        var tr = trs[rowIdx];
+        if (!tr) { tr = tableEl._addRow(null, { noAutoSeq: true }); trs.push(tr); }
+        cols.forEach(function (val, ci) {
+          var f = fields[startKeyIdx + ci];
+          if (!f) return;
+          var el = tr.querySelector('[data-key="' + f.k + '"]');
+          if (el) el.value = val.trim();
+        });
+      });
+      saveDraftSoon();
+      updateProgress();
+    });
+  }
+
+  // Видалити всі рядки таблиці, де жодне поле не заповнене (лишає мінімум 1).
+  function deleteEmptyRows(tableEl) {
+    var tbody = tableEl.querySelector("tbody");
+    var trs = Array.prototype.slice.call(tbody.querySelectorAll("tr"));
+    var removed = 0;
+    trs.forEach(function (tr) {
+      if (tbody.children.length <= 1) return;
+      var anyVal = Array.prototype.slice.call(tr.querySelectorAll(".olv-input")).some(function (el) { return el.value.trim() !== ""; });
+      if (!anyVal) { tr.remove(); removed++; }
+    });
+    return removed;
   }
 
   function setRowValues(tr, values) {
@@ -360,7 +492,11 @@
     wrap.innerHTML =
       (titleEn ? '<h3 class="olv-group-title">' + esc(titleEn) + '<span class="olv-group-title-ua"> / ' + esc(titleUa) + "</span></h3>" : "") +
       '<div class="olv-table-wrap"><table class="olv-table"' + (tkeyAttr ? ' data-tkey="' + esc(tkeyAttr) + '"' : "") + "><thead>" + tableHeaderRow(fields, fixedRows) + "</thead><tbody></tbody></table></div>" +
-      (fixedRows ? "" : '<button type="button" class="btn olv-add-row">+ Додати рядок (' + esc(titleEn || "") + ")</button>");
+      (fixedRows ? "" :
+        '<div class="olv-table-btns">' +
+        '<button type="button" class="btn olv-add-row">+ Додати рядок (' + esc(titleEn || "") + ")</button>" +
+        '<button type="button" class="btn btn-secondary olv-clear-empty">🧹 Видалити порожні рядки</button>' +
+        "</div>");
     var table = wrap.querySelector("table");
     var tbody = table.querySelector("tbody");
     if (fixedRows) {
@@ -368,6 +504,12 @@
     } else {
       wireTable(table, fields, tablePrefix);
       wrap.querySelector(".olv-add-row").addEventListener("click", function () { table._addRow(); saveDraftSoon(); });
+      wrap.querySelector(".olv-clear-empty").addEventListener("click", function () {
+        var removed = deleteEmptyRows(table);
+        if (statusEl) statusEl.textContent = removed ? "Видалено порожніх рядків: " + removed + "." : "Порожніх рядків не знайдено.";
+        saveDraftSoon();
+        updateProgress();
+      });
       table._addRow();
     }
     return wrap;
@@ -515,6 +657,7 @@
     var problems = [];
     var haulSet = {};
     var seenHaul = {};
+    var seenSetStart = {};
     root.querySelectorAll("table.olv-table tbody tr").forEach(function (tr) {
       var sample = tr.querySelector("[name]");
       if (!sample || sample.name.indexOf("sethaul::") !== 0) return;
@@ -526,6 +669,18 @@
         }
         seenHaul[haulVal] = true;
         haulSet[haulVal] = true;
+      }
+      var setStartEl = tr.querySelector('[data-key="set_start"]');
+      var setStartVal = setStartEl ? setStartEl.value.trim() : "";
+      if (setStartVal) {
+        if (seenSetStart[setStartVal]) {
+          problems.push({
+            name: setStartEl.name, label: "Set Start",
+            msg: "⚠ Можливий дублікат рядка: Set Start «" + setStartVal + "» уже використано в іншому рядку Haul «" + seenSetStart[setStartVal] + "» — перевірте, чи це справді два різні Haul, чи випадково скопійований рядок."
+          });
+        } else {
+          seenSetStart[setStartVal] = haulVal || "?";
+        }
       }
       var order = [
         { k: "set_start", label: "Set Start" },
@@ -604,10 +759,18 @@
     return out;
   }
 
+  function updateLastSaved(ts) {
+    var el = document.getElementById("olvLastSaved");
+    if (!el) return;
+    el.textContent = "💾 Востаннє збережено: " + new Date(ts).toLocaleTimeString("uk-UA");
+  }
+
   function saveDraft() {
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: Date.now(), data: collectRaw() }));
-      if (statusEl) statusEl.textContent = "Чернетку збережено — " + new Date().toLocaleTimeString("uk-UA");
+      var ts = Date.now();
+      localStorage.setItem(DRAFT_KEY, JSON.stringify({ savedAt: ts, data: collectRaw() }));
+      if (statusEl) statusEl.textContent = "Чернетку збережено — " + new Date(ts).toLocaleTimeString("uk-UA");
+      updateLastSaved(ts);
     } catch (e) {}
   }
   var saveTimer = null;
@@ -640,6 +803,7 @@
       if (el) el.value = raw.data[name];
     });
     if (statusEl) statusEl.textContent = "Чернетку відновлено (збережено " + new Date(raw.savedAt).toLocaleString("uk-UA") + ")";
+    if (raw.savedAt) updateLastSaved(raw.savedAt);
   }
 
   function clearDraft() {
@@ -1297,6 +1461,7 @@
     excelSerialUTC: excelSerialUTC,
     setCellInXml: setCellInXml,
     buildTemplateExportBlob: buildTemplateExportBlob,
+    crossValidate: crossValidate,
   };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
