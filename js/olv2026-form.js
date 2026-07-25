@@ -158,7 +158,7 @@
     var name = sectionId + "::" + f.k;
     return (
       '<div class="olv-field">' +
-      '<label class="olv-label" for="' + esc(name) + '">' + esc(f.en) + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + "</label>" +
+      '<label class="olv-label" for="' + esc(name) + '">' + esc(f.en) + ' <span class="olv-field-ua">/ ' + esc(f.ua || "") + "</span>" + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + "</label>" +
       renderControl(f, name, name) +
       '<div class="olv-error" data-error-for="' + esc(name) + '"></div>' +
       "</div>"
@@ -169,7 +169,7 @@
     return groups.map(function (g) {
       return (
         '<div class="olv-group">' +
-        '<h3 class="olv-group-title">' + esc(g.en) + '<span class="olv-group-title-ua"> — ' + esc(g.ua || "") + "</span></h3>" +
+        '<h3 class="olv-group-title">' + esc(g.en) + '<span class="olv-group-title-ua"> / ' + esc(g.ua || "") + "</span></h3>" +
         '<div class="olv-grid">' + g.fields.map(function (f) { return renderGroupField(f, sectionId); }).join("") + "</div>" +
         "</div>"
       );
@@ -179,7 +179,7 @@
   // ---- repeatable table rendering ---------------------------------------
   function tableHeaderRow(fields) {
     return "<tr>" + fields.map(function (f) {
-      return "<th>" + esc(f.en) + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + "</th>";
+      return "<th>" + esc(f.en) + ' <span class="olv-field-ua">/ ' + esc(f.ua || "") + "</span>" + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + "</th>";
     }).join("") + '<th class="olv-col-del"></th></tr>';
   }
 
@@ -188,7 +188,7 @@
     tr.dataset.row = String(rowIndex);
     tr.innerHTML = fields.map(function (f) {
       var name = tablePrefix + "::" + rowIndex + "::" + f.k;
-      return '<td data-label="' + esc(f.en) + '">' + renderControl(f, name) + '<div class="olv-error" data-error-for="' + esc(name) + '"></div></td>';
+      return '<td data-label="' + esc(f.en + " / " + (f.ua || "")) + '">' + renderControl(f, name) + '<div class="olv-error" data-error-for="' + esc(name) + '"></div></td>';
     }).join("") + '<td class="olv-col-del"><button type="button" class="olv-del-row" title="Видалити рядок" aria-label="Видалити рядок">✕</button></td>';
     return tr;
   }
@@ -221,7 +221,7 @@
 
   // ---- section renderers --------------------------------------------------
   function sectionHeaderHtml(sec) {
-    return "<h2>" + esc(sec.num) + ". " + esc(sec.en) + '<span class="olv-section-ua"> — ' + esc(sec.ua) + "</span></h2>" +
+    return "<h2>" + esc(sec.num) + ". " + esc(sec.en) + '<span class="olv-section-ua"> / ' + esc(sec.ua) + "</span></h2>" +
       (sec.note ? '<p class="olv-note">' + esc(sec.note) + "</p>" : "");
   }
 
@@ -236,7 +236,7 @@
   function makeTableBlock(titleEn, titleUa, fields, tablePrefix, tkeyAttr) {
     var wrap = document.createElement("div");
     wrap.innerHTML =
-      (titleEn ? '<h3 class="olv-group-title">' + esc(titleEn) + '<span class="olv-group-title-ua"> — ' + esc(titleUa) + "</span></h3>" : "") +
+      (titleEn ? '<h3 class="olv-group-title">' + esc(titleEn) + '<span class="olv-group-title-ua"> / ' + esc(titleUa) + "</span></h3>" : "") +
       '<div class="olv-table-wrap"><table class="olv-table"' + (tkeyAttr ? ' data-tkey="' + esc(tkeyAttr) + '"' : "") + "><thead>" + tableHeaderRow(fields) + "</thead><tbody></tbody></table></div>" +
       '<button type="button" class="btn olv-add-row">+ Додати рядок (' + esc(titleEn || "") + ")</button>";
     var table = wrap.querySelector("table");
