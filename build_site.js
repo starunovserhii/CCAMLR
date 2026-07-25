@@ -2704,18 +2704,28 @@ section("olv-intro", "en_OLv2026 — інтерактивна форма жур�
   ${ul([
     "Усі назви полів, розділів і значення для заповнення — англійською мовою, як у справжньому журналі.",
     "Натисніть іконку <strong>ⓘ</strong> біля будь-якого поля, щоб побачити український переклад назви, пояснення призначення, формат і приклад заповнення.",
-    "Форма зберігає чернетку автоматично в цьому браузері (localStorage) — можна закрити вкладку і повернутися пізніше.",
-    "Кнопка «Експортувати в Excel» перевіряє обов'язкові поля і формати, а тоді формує справжній файл <strong>.xlsx</strong> із 12 листами — лише англомовні назви та введені дані, без українських підказок.",
+    "Форма зберігає чернетку автоматично в цьому браузері (localStorage) — можна закрити вкладку і повернутися пізніше. Додатково можна зберегти чернетку окремим файлом (і завантажити її на іншому пристрої).",
+    "Панель прогресу нижче показує стан заповнення кожного з 12 листів (✓ — заповнено, ⚠ — є незаповнені обов'язкові поля, порожньо — лист ще не почато).",
+    "Форма звіряє номери Haul між листами та порядок часу постановки/виборки — про розбіжності повідомить список помилок перед експортом.",
+    "Кнопка «Дублювати рядок» (⧉) у таблицях копіює значення попереднього рядка як основу для нового.",
+    "Кнопка «Експортувати в Excel» перевіряє обов'язкові поля, формати та узгодженість між листами, а тоді формує справжній файл <strong>.xlsx</strong> із 12 листами — лише англомовні назви та введені дані, без українських підказок.",
   ])}
   ${comment("Ця форма — навчальний інструмент для практики заповнення журналу, побудований на основі реальної структури OLv2026a (див. розділ «Заповнення журналів» та ілюстрований посібник вище). Дані зберігаються лише у вашому браузері (localStorage) — на сервер нічого не надсилається. Перед офіційним рейсом користуйтеся справжнім файлом журналу від CCAMLR/Технічного координатора.")}
 `) +
 `<div class="olv-toolbar">
   <button type="button" id="olvExportBtn" class="btn">⬇ Експортувати в Excel (.xlsx)</button>
   <button type="button" id="olvSaveBtn" class="btn btn-secondary">💾 Зберегти чернетку зараз</button>
+  <button type="button" id="olvExportDraftBtn" class="btn btn-secondary">🗂 Чернетку у файл</button>
+  <button type="button" id="olvImportDraftBtn" class="btn btn-secondary">📂 Завантажити чернетку</button>
+  <input type="file" id="olvImportFile" accept="application/json,.json" hidden>
+  <button type="button" id="olvFillBtn" class="btn btn-secondary">🧪 Заповнити прикладом</button>
+  <button type="button" id="olvPrintBtn" class="btn btn-secondary">🖨 Зведена сторінка</button>
   <button type="button" id="olvClearBtn" class="btn btn-secondary">🗑 Очистити форму</button>
   <span id="olvStatus"></span>
 </div>
+<div id="olvProgress" class="olv-progress" aria-label="Прогрес заповнення листів"></div>
 <div id="olvErrors" class="olv-errors"></div>
+<div id="olvPrintSummary" class="olv-print-summary" hidden></div>
 <noscript><div class="comment"><strong>Увага:</strong> ця форма потребує увімкненого JavaScript у браузері.</div></noscript>
 <div id="olvFormRoot"></div>`;
 
@@ -2744,8 +2754,8 @@ fs.writeFileSync("17-other-fisheries.html", layout("Інші промисли (�
 fs.writeFileSync("18-inspection.html", layout("Інспекційна система", "18-inspection.html", page18, { description: "Інспекційна система CCAMLR: інспекція суден у морі (CM 10-02) і в порту (CM 10-03), взаємодія наукового спостерігача з інспекторами, звітність про ННН-промисел." }));
 fs.writeFileSync("19-internship.html", layout("Програма стажування", "19-internship.html", page19, { description: "Розклад 3-денного стажування для кандидатів на наукового спостерігача CCAMLR із посиланнями на відповідні розділи сайту." }));
 fs.writeFileSync("20-en-olv2026-form.html", layout("en_OLv2026 (інтерактивна форма)", "20-en-olv2026-form.html", page20, {
-  description: "Інтерактивна форма для заповнення журналу наукового спостерігача CCAMLR OLv2026a: усі 12 листів, підказки українською, валідація, автозбереження чернетки, експорт у .xlsx.",
-  extraScripts: `<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>\n<script src="js/olv2026-schema.js"></script>\n<script src="js/olv2026-form.js"></script>`,
+  description: "Інтерактивна форма для заповнення журналу наукового спостерігача CCAMLR OLv2026a: усі 12 листів, підказки українською, валідація (включно з перевіркою між листами), автозбереження чернетки, збереження/завантаження чернетки файлом, офлайн-експорт у .xlsx.",
+  extraScripts: `<script src="js/xlsx.full.min.js"></script>\n<script src="js/olv2026-schema.js"></script>\n<script src="js/olv2026-form.js"></script>`,
 }));
 
 // =====================================================================

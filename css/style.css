@@ -531,6 +531,57 @@ html[data-theme="dark"] .lecture-row td { background: #23384a; }
 html[data-theme="dark"] .olv-errors { background: #3a1414; color: #ffb4b4; }
 .olv-errors ul { margin: 8px 0 0; padding-left: 20px; }
 .olv-errors a { color: inherit; text-decoration: underline; }
+.olv-errors-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.olv-next-err { white-space: nowrap; margin: 0; font-size: 0.82rem; padding: 6px 12px; }
+
+/* fill-progress panel */
+.olv-progress { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 18px; }
+.olv-progress-item {
+  width: 32px; height: 32px; border-radius: 7px; border: 1.5px dashed var(--border); background: var(--card-bg);
+  color: var(--gray); font-size: 0.78rem; font-weight: 700; cursor: pointer; padding: 0;
+}
+.olv-progress-item:hover { border-color: var(--accent2); color: var(--accent2); }
+.olv-progress-item.olv-progress-warn { border-style: solid; border-color: #d97706; background: #fff7e6; color: #92400e; }
+.olv-progress-item.olv-progress-done { border-style: solid; border-color: var(--ok, #2e7d32); background: #e9f7ec; color: #1b5e20; }
+html[data-theme="dark"] .olv-progress-item.olv-progress-warn { background: #3a2a0a; color: #fbbf24; border-color: #d97706; }
+html[data-theme="dark"] .olv-progress-item.olv-progress-done { background: #123018; color: #86efac; border-color: #2e7d32; }
+
+/* soft code-list (not-blocking) warning */
+.olv-warn { font-size: 0.78rem; color: #92400e; min-height: 1em; }
+html[data-theme="dark"] .olv-warn { color: #fbbf24; }
+.olv-input.olv-code-warn { border-color: #d97706; background: #fff7e6; }
+html[data-theme="dark"] .olv-input.olv-code-warn { background: #3a2a0a; }
+
+/* duplicate-row button */
+.olv-dup-row {
+  background: none; border: 1px solid var(--accent2); color: var(--accent2); border-radius: 5px; width: 26px; height: 26px;
+  cursor: pointer; font-size: 0.8rem; line-height: 1; margin-right: 4px;
+}
+.olv-dup-row:hover { background: var(--accent2); color: #fff; }
+
+/* printable summary overlay */
+.olv-print-summary { display: none; }
+.olv-print-summary.show { display: block; position: fixed; inset: 0; background: var(--bg); z-index: 500; overflow: auto; padding: 24px; }
+.olv-print-toolbar { display: flex; gap: 10px; margin-bottom: 16px; position: sticky; top: 0; background: var(--bg); padding: 8px 0; z-index: 1; }
+.olv-print-head h2 { margin: 0 0 4px; }
+.olv-print-head p { color: var(--gray); font-size: 0.85rem; margin: 0 0 18px; }
+.olv-print-section { margin-bottom: 22px; }
+.olv-print-section h3 { color: var(--accent2); border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+.olv-print-table { border-collapse: collapse; width: 100%; margin: 6px 0 14px; font-size: 0.85rem; }
+.olv-print-table th, .olv-print-table td { border: 1px solid var(--border); padding: 5px 8px; text-align: left; vertical-align: top; }
+.olv-print-table.olv-print-rows th { background: var(--accent); color: #fff; }
+.olv-print-empty { color: var(--gray); font-size: 0.85rem; font-style: italic; }
+.olv-print-subtitle { font-weight: 600; margin: 10px 0 4px; color: var(--accent2); }
+@media print {
+  body.olv-print-mode .sidebar, body.olv-print-mode .nav-toggle, body.olv-print-mode .olv-toolbar,
+  body.olv-print-mode #olvErrors, body.olv-print-mode #olvProgress, body.olv-print-mode #olvFormRoot,
+  body.olv-print-mode .page-title, body.olv-print-mode #olv-intro, body.olv-print-mode .olv-print-toolbar {
+    display: none !important;
+  }
+  body.olv-print-mode .content { padding: 0; max-width: 100%; }
+  body.olv-print-mode .olv-print-summary { position: static; padding: 0; }
+}
+
 .olv-section-ua { font-weight: 400; font-size: 0.85em; color: var(--gray); }
 .olv-note { font-size: 0.88rem; color: var(--gray); background: var(--accent-light); border-radius: 6px; padding: 8px 12px; margin: 6px 0 14px; }
 .olv-group { margin-bottom: 18px; }
@@ -577,7 +628,7 @@ html[data-theme="dark"] .olv-input.olv-invalid { background: #3a1414; }
 .olv-table tbody tr:nth-child(even) { background: var(--accent-light); }
 .olv-table .olv-input { min-width: 110px; }
 .olv-table textarea.olv-input { min-width: 160px; }
-.olv-col-del { width: 34px; min-width: 34px; text-align: center; }
+.olv-col-del { width: 68px; min-width: 68px; text-align: center; white-space: nowrap; }
 .olv-del-row {
   background: none; border: 1px solid var(--bad); color: var(--bad); border-radius: 5px; width: 26px; height: 26px;
   cursor: pointer; font-size: 0.85rem; line-height: 1;

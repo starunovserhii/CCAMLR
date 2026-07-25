@@ -73,7 +73,7 @@ const OLV_SCHEMA = {
     {
       id: "sethaul", num: "2", en: "Set and Haul Details", ua: "Постановка та виборка яруса", kind: "table", note: "Один рядок = один Haul (постановка + виборка). Set/Haul Number — наскрізний ключ, який зв'язує цей рядок з усіма іншими листами.",
       fields: [
-        F("haul_no", "Set/ Haul Number", "int", "№ Haul", "Наскрізний послідовний номер постановки/виборки. Використовується як ключ на всіх інших листах. Формат: ціле число з 1. Приклад: 1.", true, { min: 1, ph: "1" }),
+        F("haul_no", "Set/ Haul Number", "int", "№ Haul", "Наскрізний послідовний номер постановки/виборки. Використовується як ключ на всіх інших листах. Формат: ціле число з 1. Приклад: 1.", true, { min: 1, ph: "1", seq: true }),
         F("set_start", "Date & Time (UTC) Set Start", "datetime", "Початок постановки (UTC)", "Дата й час початку вимітування яруса, за UTC (не судновий час). Формат: дд.мм.рррр гг:хв.", true, {}),
         F("set_finish", "Date & Time (UTC) Set Finish", "datetime", "Кінець постановки (UTC)", "Дата й час завершення вимітування яруса, UTC.", true, {}),
         F("set_lat_deg", "Set Start Latitude degrees (-DD)", "num", "Широта початку постановки, град.", "Градуси широти початку постановки. Від'ємне значення = південна широта. Формат: ціле число −90…90. Приклад: −75.", true, { min: -90, max: 90, step: 1, ph: "-75" }),
@@ -142,7 +142,7 @@ const OLV_SCHEMA = {
       id: "vme", num: "6", en: "Haul VME", ua: "Вразливі морські екосистеми", kind: "table", note: "Ярус ділиться на сегменти; для кожного сегмента, де піднято індикаторні таксони ВМЕ, — окремий рядок.",
       fields: [
         F("haul_no", "Haul number", "int", "№ Haul", "Номер Haul, до якого належить сегмент.", true, { min: 1 }),
-        F("segment_no", "VME Segment Number", "int", "№ сегмента", "Порядковий номер сегмента яруса в межах Haul.", true, { min: 1, ph: "1" }),
+        F("segment_no", "VME Segment Number", "int", "№ сегмента", "Порядковий номер сегмента яруса в межах Haul.", true, { min: 1, ph: "1", seq: true }),
         F("bucket_unit", "Observed Bucket VME Unit(s)", "select", "К-сть одиниць у відерці", "Категорія кількості знайденого матеріалу ВМЕ.", false, { opts: [["Less than 5 units", "Менше 5 одиниць"], ["5 or more units", "5 і більше одиниць"]] }),
         F("sample_type", "Sample Type", "select", "Тип вибірки", "Random — випадкова вибірка сегментів (~30%); Trigger — сегмент із ≥5 одиниць-індикаторів. Тип не змінюється заднім числом.", true, { opts: [["Random", "Випадкова"], ["Trigger", "Тригерна"]] }),
         F("lat_deg", "Latitude degrees (-DD)", "num", "Широта, град.", "Градуси широти середини сегмента. Від'ємне = південна широта.", false, { min: -90, max: 90, ph: "-75" }),
@@ -157,7 +157,7 @@ const OLV_SCHEMA = {
       id: "bio", num: "7", en: "Biological Sampling", ua: "Біологічні проби", kind: "table", note: "Один рядок = один індивідуальний біологічний промір однієї риби.",
       fields: [
         F("haul_no", "Haul Number", "int", "№ Haul", "Номер Haul, з якого відібрана риба.", true, { min: 1 }),
-        F("fish_no", "Fish Serial Number", "int", "№ риби", "Порядковий номер риби в межах цього Haul (не наскрізний за весь рейс). Приклад: 1.", true, { min: 1, ph: "1" }),
+        F("fish_no", "Fish Serial Number", "int", "№ риби", "Порядковий номер риби в межах цього Haul (не наскрізний за весь рейс). Приклад: 1.", true, { min: 1, ph: "1", seq: true }),
         F("obs_id", "Observer ID", "int", "ID спостерігача", "Номер спостерігача, який виконав промір.", false, { min: 1, max: 3 }),
         F("species", "Species Code", "text", "Код виду", "Код виду риби.", true, { ph: "TOA", list: SPECIES_CODES }),
         F("total_len", "Total Length (cm)", "num", "Загальна довжина (см)", "Довжина від писка до кінця хвостового плавця. Формат: число, см. Приклад: 146.", true, { min: 0, max: 300, step: 0.1, ph: "146" }),

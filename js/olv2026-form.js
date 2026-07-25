@@ -105,9 +105,36 @@
     var btn = e.target.closest && e.target.closest(".olv-info-btn");
     if (btn && !tooltipPinned) closeTooltip();
   });
-  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeTooltip(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeTooltip(); closePrintSummary(); } });
   window.addEventListener("scroll", function () { closeTooltip(); }, true);
   window.addEventListener("resize", function () { closeTooltip(); });
+
+  // ---- soft "code not in reference list" warning (datalist fields) ------
+  function extractCode(entry) {
+    var i = entry.indexOf(" — ");
+    return (i === -1 ? entry : entry.slice(0, i)).trim().toUpperCase();
+  }
+  function checkCodeWarn(el) {
+    var warnSlot = root.querySelector('[data-warn-for="' + cssEscape(el.name) + '"]');
+    if (!warnSlot) return;
+    var listId = el.getAttribute("list");
+    var val = el.value.trim();
+    if (!val || !listId) { warnSlot.textContent = ""; el.classList.remove("olv-code-warn"); return; }
+    var dl = document.getElementById(listId);
+    if (!dl) { warnSlot.textContent = ""; return; }
+    var options = Array.prototype.slice.call(dl.querySelectorAll("option"));
+    if (!options.length) { warnSlot.textContent = ""; return; }
+    var valUpper = val.toUpperCase();
+    var matched = options.some(function (o) {
+      var full = o.getAttribute("value") || "";
+      return full.toUpperCase() === valUpper || extractCode(full) === valUpper;
+    });
+    if (matched) { warnSlot.textContent = ""; el.classList.remove("olv-code-warn"); }
+    else {
+      warnSlot.textContent = "⚠ Такого коду немає в довіднику підказок (список неповний) — це не обов'язково помилка, але перевірте написання.";
+      el.classList.add("olv-code-warn");
+    }
+  }
 
   // ---- field input rendering -------------------------------------------
   function inputAttrs(f) {
@@ -161,6 +188,7 @@
       '<label class="olv-label" for="' + esc(name) + '">' + esc(f.en) + ' <span class="olv-field-ua">/ ' + esc(f.ua || "") + "</span>" + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + "</label>" +
       renderControl(f, name, name) +
       '<div class="olv-error" data-error-for="' + esc(name) + '"></div>' +
+      (f.list ? '<div class="olv-warn" data-warn-for="' + esc(name) + '"></div>' : "") +
       "</div>"
     );
   }
@@ -188,8 +216,15 @@
     tr.dataset.row = String(rowIndex);
     tr.innerHTML = fields.map(function (f) {
       var name = tablePrefix + "::" + rowIndex + "::" + f.k;
-      return '<td data-label="' + esc(f.en + " / " + (f.ua || "")) + '">' + renderControl(f, name) + '<div class="olv-error" data-error-for="' + esc(name) + '"></div></td>';
-    }).join("") + '<td class="olv-col-del"><button type="button" class="olv-del-row" title="Видалити рядок" aria-label="Видалити рядок">✕</button></td>';
+      return '<td data-label="' + esc(f.en + " / " + (f.ua || "")) + '">' + renderControl(f, name) +
+        '<div class="olv-error" data-error-for="' + esc(name) + '"></div>' +
+        (f.list ? '<div class="olv-warn" data-warn-for="' + esc(name) + '"></div>' : "") +
+        "</td>";
+    }).join("") +
+      '<td class="olv-col-del">' +
+      '<button type="button" class="olv-dup-row" title="Дублювати рядок" aria-label="Дублювати рядок">⧉</button>' +
+      '<button type="button" class="olv-del-row" title="Видалити рядок" aria-label="Видалити рядок">✕</button>' +
+      "</td>";
     return tr;
   }
 
@@ -203,12 +238,27 @@
       return tr;
     };
     tbody.addEventListener("click", function (e) {
+      var dupBtn = e.target.closest(".olv-dup-row");
+      if (dupBtn) {
+        var srcTr = dupBtn.closest("tr");
+        var newTr = tableEl._addRow();
+        fields.forEach(function (f) {
+          if (f.seq) return;
+          var srcEl = srcTr.querySelector('[data-key="' + f.k + '"]');
+          var dstEl = newTr.querySelector('[data-key="' + f.k + '"]');
+          if (srcEl && dstEl) dstEl.value = srcEl.value;
+        });
+        saveDraftSoon();
+        updateProgress();
+        return;
+      }
       var btn = e.target.closest(".olv-del-row");
       if (!btn) return;
       var tr = btn.closest("tr");
       if (tbody.children.length <= 1) { tr.querySelectorAll("input,select,textarea").forEach(function (el) { el.value = ""; }); return; }
       tr.remove();
       saveDraftSoon();
+      updateProgress();
     });
   }
 
@@ -286,6 +336,61 @@
     });
   }
 
+  // ---- fill-progress panel (per-sheet ✓/⚠ indicator) ---------------------
+  var progressEl = null;
+
+  function sectionStatus(sec) {
+    var prefix = sec.id + "::";
+    var flatAny = false, flatMissing = false;
+    var rows = {};
+    root.querySelectorAll(".olv-input").forEach(function (el) {
+      if (el.name.indexOf(prefix) !== 0) return;
+      var m = el.name.match(/^(.+)::(\d+)::([^:]+)$/);
+      var val = el.value.trim();
+      if (m) {
+        var rowKey = m[1] + "::" + m[2];
+        if (!rows[rowKey]) rows[rowKey] = { any: false, missing: false };
+        if (val !== "") rows[rowKey].any = true;
+        if (el.hasAttribute("required") && val === "") rows[rowKey].missing = true;
+      } else {
+        if (val !== "") flatAny = true;
+        if (el.hasAttribute("required") && val === "") flatMissing = true;
+      }
+    });
+    var rowKeys = Object.keys(rows);
+    var rowAny = rowKeys.some(function (k) { return rows[k].any; });
+    var rowTouchedMissing = rowKeys.some(function (k) { return rows[k].any && rows[k].missing; });
+    if (!flatAny && !rowAny) return "empty";
+    if (flatMissing || rowTouchedMissing) return "warn";
+    return "done";
+  }
+
+  function buildProgressPanel(schema) {
+    if (!progressEl) return;
+    progressEl.innerHTML = schema.sections.map(function (sec) {
+      return '<button type="button" class="olv-progress-item" data-target="olv-' + esc(sec.id) + '" title="' +
+        esc(sec.num + ". " + sec.en + " / " + sec.ua) + '"><span class="olv-progress-num">' + esc(sec.num) + "</span></button>";
+    }).join("");
+    progressEl.querySelectorAll(".olv-progress-item").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var target = document.getElementById(btn.getAttribute("data-target"));
+        if (target && target.scrollIntoView) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    });
+    updateProgress();
+  }
+
+  function updateProgress() {
+    if (!progressEl) return;
+    window.OLV_SCHEMA.sections.forEach(function (sec) {
+      var btn = progressEl.querySelector('[data-target="olv-' + sec.id + '"]');
+      if (!btn) return;
+      var status = sectionStatus(sec);
+      btn.classList.remove("olv-progress-empty", "olv-progress-warn", "olv-progress-done");
+      btn.classList.add("olv-progress-" + status);
+    });
+  }
+
   // ---- validation ---------------------------------------------------------
   function fieldLabel(el) {
     var td = el.closest("td[data-label]");
@@ -326,11 +431,73 @@
     return problems;
   }
 
+  // ---- cross-sheet (referential/chronological) validation ------------------
+  function crossValidate() {
+    var problems = [];
+    var haulSet = {};
+    var seenHaul = {};
+    root.querySelectorAll("table.olv-table tbody tr").forEach(function (tr) {
+      var sample = tr.querySelector("[name]");
+      if (!sample || sample.name.indexOf("sethaul::") !== 0) return;
+      var haulEl = tr.querySelector('[data-key="haul_no"]');
+      var haulVal = haulEl ? haulEl.value.trim() : "";
+      if (haulVal) {
+        if (seenHaul[haulVal]) {
+          problems.push({ name: haulEl.name, label: "Set/ Haul Number", msg: "Дубльований № Haul «" + haulVal + "» у листі «Set and Haul Details» — номери мають бути унікальними." });
+        }
+        seenHaul[haulVal] = true;
+        haulSet[haulVal] = true;
+      }
+      var order = [
+        { k: "set_start", label: "Set Start" },
+        { k: "set_finish", label: "Set Finish" },
+        { k: "haul_start", label: "Haul Start" },
+        { k: "haul_finish", label: "Haul Finish" },
+      ];
+      var prevVal = null, prevLabel = null;
+      order.forEach(function (step) {
+        var el = tr.querySelector('[data-key="' + step.k + '"]');
+        var val = el ? el.value : "";
+        if (val && prevVal && val < prevVal) {
+          problems.push({ name: el.name, label: step.label, msg: "Час «" + step.label + "» (Haul " + (haulVal || "?") + ") не може бути раніше за «" + prevLabel + "» — перевірте дату/час." });
+        }
+        if (val) { prevVal = val; prevLabel = step.label; }
+      });
+    });
+    window.OLV_SCHEMA.sections.forEach(function (sec) {
+      if (sec.id === "sethaul") return;
+      var checkGroups = [];
+      if (sec.kind === "table") checkGroups = [{ fields: sec.fields, prefix: sec.id }];
+      else if (sec.kind === "mixed") checkGroups = [{ fields: sec.table.fields, prefix: sec.id + "::t" }];
+      else if (sec.kind === "multitable") checkGroups = sec.tables.map(function (t) { return { fields: t.fields, prefix: sec.id + "::" + t.key }; });
+      checkGroups.forEach(function (cg) {
+        if (!cg.fields.some(function (f) { return f.k === "haul_no"; })) return;
+        root.querySelectorAll("tbody tr").forEach(function (tr) {
+          var sample = tr.querySelector("[name]");
+          if (!sample || sample.name.indexOf(cg.prefix + "::") !== 0) return;
+          var el = tr.querySelector('[data-key="haul_no"]');
+          var val = el ? el.value.trim() : "";
+          if (val && !haulSet[val]) {
+            problems.push({ name: el.name, label: "Haul Number", msg: "№ Haul «" + val + "» (лист «" + sec.en + "») не знайдено серед номерів у листі «Set and Haul Details» — перевірте номер." });
+          }
+        });
+      });
+    });
+    return problems;
+  }
+
+  var currentProblems = [];
+  var problemCursor = -1;
+
   function showProblems(problems) {
+    currentProblems = problems;
+    problemCursor = -1;
     if (!problems.length) { errorsBox.style.display = "none"; errorsBox.innerHTML = ""; return; }
     errorsBox.style.display = "block";
-    errorsBox.innerHTML = "<strong>Перед експортом виправте " + problems.length + " " + (problems.length === 1 ? "помилку" : "помилки(ок)") + ":</strong><ul>" +
-      problems.slice(0, 40).map(function (p) { return '<li><a href="#" data-focus="' + esc(p.name) + '">' + esc(p.msg) + "</a></li>"; }).join("") + "</ul>";
+    errorsBox.innerHTML =
+      '<div class="olv-errors-head"><strong>Перед експортом виправте ' + problems.length + " " + (problems.length === 1 ? "помилку" : "помилки(ок)") + ':</strong>' +
+      '<button type="button" id="olvNextErrBtn" class="btn btn-secondary olv-next-err">Наступна помилка →</button></div>' +
+      "<ul>" + problems.slice(0, 40).map(function (p) { return '<li><a href="#" data-focus="' + esc(p.name) + '">' + esc(p.msg) + "</a></li>"; }).join("") + "</ul>";
     errorsBox.querySelectorAll("a[data-focus]").forEach(function (a) {
       a.addEventListener("click", function (e) {
         e.preventDefault();
@@ -338,7 +505,18 @@
         if (el) { if (el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" }); el.focus(); }
       });
     });
+    var nextBtn = errorsBox.querySelector("#olvNextErrBtn");
+    if (nextBtn) nextBtn.addEventListener("click", goToNextProblem);
     if (errorsBox.scrollIntoView) errorsBox.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function goToNextProblem() {
+    if (!currentProblems.length) return;
+    problemCursor = (problemCursor + 1) % currentProblems.length;
+    var p = currentProblems[problemCursor];
+    var el = byName(p.name);
+    if (el) { if (el.scrollIntoView) el.scrollIntoView({ behavior: "smooth", block: "center" }); el.focus(); }
+    if (statusEl) statusEl.textContent = "Помилка " + (problemCursor + 1) + " з " + currentProblems.length + ": " + p.label;
   }
 
   // ---- collect / restore data ----------------------------------------------
@@ -391,6 +569,7 @@
     localStorage.removeItem(DRAFT_KEY);
     root.innerHTML = "";
     renderAll(window.OLV_SCHEMA);
+    updateProgress();
     if (statusEl) statusEl.textContent = "Форму очищено.";
     errorsBox.style.display = "none";
     errorsBox.innerHTML = "";
@@ -448,7 +627,8 @@
   }
 
   function doExport() {
-    var problems = validateAll();
+    var problems = validateAll().concat(crossValidate());
+    problems.forEach(function (p) { setError(p.name, p.msg); });
     showProblems(problems);
     if (problems.length) return;
     if (typeof XLSX === "undefined") {
@@ -463,22 +643,202 @@
     if (statusEl) statusEl.textContent = "Файл експортовано — " + new Date().toLocaleTimeString("uk-UA");
   }
 
+  // ---- draft export/import as a file (backup independent of localStorage) --
+  function draftFileBaseName() {
+    var vnameEl = byName("vessel::vname");
+    var vname = vnameEl && vnameEl.value ? vnameEl.value.trim().replace(/[^a-zA-Z0-9]+/g, "_") : "chernetka";
+    return "OLv2026a_" + vname + "_" + new Date().toISOString().slice(0, 10);
+  }
+
+  function downloadDraftFile() {
+    var payload = { app: "ccamlr-olv2026", version: window.OLV_SCHEMA.version, savedAt: Date.now(), data: collectRaw() };
+    var blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = draftFileBaseName() + ".json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    if (statusEl) statusEl.textContent = "Чернетку збережено у файл — " + new Date().toLocaleTimeString("uk-UA");
+  }
+
+  function importDraftFile(file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var raw;
+      try { raw = JSON.parse(reader.result); } catch (e) { alert("Не вдалося прочитати файл — це не коректний JSON-файл чернетки."); return; }
+      if (!raw || typeof raw.data !== "object") { alert("Файл не містить очікуваної структури чернетки цієї форми."); return; }
+      if (!confirm("Завантажити чернетку з файлу? Поточні дані у формі буде замінено.")) return;
+      root.innerHTML = "";
+      renderAll(window.OLV_SCHEMA);
+      ensureRowsForRestore(raw.data);
+      Object.keys(raw.data).forEach(function (name) {
+        var el = byName(name);
+        if (el) el.value = raw.data[name];
+      });
+      saveDraft();
+      updateProgress();
+      if (statusEl) statusEl.textContent = "Чернетку завантажено з файлу" + (raw.savedAt ? " (збережено " + new Date(raw.savedAt).toLocaleString("uk-UA") + ")" : "") + ".";
+      errorsBox.style.display = "none";
+      errorsBox.innerHTML = "";
+    };
+    reader.readAsText(file, "utf-8");
+  }
+
+  // ---- fill with example data (training/demo) -------------------------------
+  function sampleValueFor(f) {
+    if (f.type === "datetime") {
+      var dtMap = { set_start: "2025-12-01T04:30", set_finish: "2025-12-01T06:15", haul_start: "2025-12-01T10:00", haul_finish: "2025-12-01T13:45", sight_dt: "2025-12-01T09:00" };
+      return dtMap[f.k] || "2025-12-01T04:30";
+    }
+    switch (f.type) {
+      case "select": return f.opts && f.opts.length ? f.opts[0][0] : "";
+      case "date": return "2025-12-01";
+      case "time": return "04:30";
+      case "email": return "observer@example.com";
+      case "int": return f.k === "haul_no" ? "1" : String(Math.max(f.min !== undefined ? f.min : 1, 1));
+      case "num": return f.ph || String(f.min !== undefined ? f.min : 1);
+      default: return f.ph || "EXAMPLE";
+    }
+  }
+
+  function fillTableRows(prefix, fields) {
+    root.querySelectorAll("tbody tr").forEach(function (tr) {
+      var sample = tr.querySelector("[name]");
+      if (!sample || sample.name.indexOf(prefix + "::") !== 0) return;
+      fields.forEach(function (f) {
+        var el = tr.querySelector('[data-key="' + f.k + '"]');
+        if (el) el.value = sampleValueFor(f);
+      });
+    });
+  }
+
+  function fillExample() {
+    if (!confirm("Заповнити форму прикладовими даними для демонстрації структури? Наявні введені дані буде перезаписано.")) return;
+    var schema = window.OLV_SCHEMA;
+    schema.sections.forEach(function (sec) {
+      if (sec.kind === "single") {
+        sec.groups.forEach(function (g) { g.fields.forEach(function (f) { var el = byName(sec.id + "::" + f.k); if (el) el.value = sampleValueFor(f); }); });
+      } else if (sec.kind === "table") {
+        fillTableRows(sec.id, sec.fields);
+      } else if (sec.kind === "mixed") {
+        sec.groups.forEach(function (g) { g.fields.forEach(function (f) { var el = byName(sec.id + "::" + f.k); if (el) el.value = sampleValueFor(f); }); });
+        fillTableRows(sec.id + "::t", sec.table.fields);
+      } else {
+        sec.tables.forEach(function (t) { fillTableRows(sec.id + "::" + t.key, t.fields); });
+      }
+    });
+    saveDraft();
+    updateProgress();
+    if (statusEl) statusEl.textContent = "Форму заповнено прикладовими даними (лише для демонстрації).";
+  }
+
+  // ---- printable summary overlay --------------------------------------------
+  function buildPrintSummaryHtml() {
+    var schema = window.OLV_SCHEMA;
+    var html = '<div class="olv-print-head"><h2>OLv2026a — зведена сторінка (перевірка перед друком/експортом)</h2><p>' + esc(new Date().toLocaleString("uk-UA")) + "</p></div>";
+    schema.sections.forEach(function (sec) {
+      var any = false;
+      var block = "<h3>" + esc(sec.num + ". " + sec.en + " / " + sec.ua) + "</h3>";
+      var flatRows = "";
+      if (sec.kind === "single" || sec.kind === "mixed") {
+        sec.groups.forEach(function (g) {
+          g.fields.forEach(function (f) {
+            var el = byName(sec.id + "::" + f.k);
+            var v = el ? el.value.trim() : "";
+            if (v) { any = true; flatRows += "<tr><th>" + esc(f.en) + "</th><td>" + esc(v) + "</td></tr>"; }
+          });
+        });
+      }
+      if (flatRows) block += '<table class="olv-print-table">' + flatRows + "</table>";
+      var tableGroups = [];
+      if (sec.kind === "table") tableGroups = [{ fields: sec.fields, prefix: sec.id, title: null }];
+      else if (sec.kind === "mixed") tableGroups = [{ fields: sec.table.fields, prefix: sec.id + "::t", title: sec.table.titleEn }];
+      else if (sec.kind === "multitable") tableGroups = sec.tables.map(function (t) { return { fields: t.fields, prefix: sec.id + "::" + t.key, title: t.titleEn }; });
+      tableGroups.forEach(function (tg) {
+        var trs = [];
+        root.querySelectorAll("tbody tr").forEach(function (tr) {
+          var sample = tr.querySelector("[name]");
+          if (!sample || sample.name.indexOf(tg.prefix + "::") !== 0) return;
+          var cells = tg.fields.map(function (f) { var el = tr.querySelector('[data-key="' + f.k + '"]'); return el ? el.value.trim() : ""; });
+          if (cells.some(function (c) { return c !== ""; })) trs.push(cells);
+        });
+        if (trs.length) {
+          any = true;
+          block += (tg.title ? '<p class="olv-print-subtitle">' + esc(tg.title) + "</p>" : "") +
+            '<table class="olv-print-table olv-print-rows"><thead><tr>' + tg.fields.map(function (f) { return "<th>" + esc(f.en) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+            trs.map(function (row) { return "<tr>" + row.map(function (c) { return "<td>" + esc(c) + "</td>"; }).join("") + "</tr>"; }).join("") +
+            "</tbody></table>";
+        }
+      });
+      if (!any) block += '<p class="olv-print-empty">— немає даних —</p>';
+      html += '<div class="olv-print-section">' + block + "</div>";
+    });
+    return html;
+  }
+
+  function openPrintSummary() {
+    var box = document.getElementById("olvPrintSummary");
+    if (!box) return;
+    box.innerHTML =
+      '<div class="olv-print-toolbar"><button type="button" id="olvPrintNowBtn" class="btn">🖨 Друкувати</button>' +
+      '<button type="button" id="olvPrintCloseBtn" class="btn btn-secondary">✕ Закрити</button></div>' +
+      buildPrintSummaryHtml();
+    box.hidden = false;
+    box.classList.add("show");
+    document.body.classList.add("olv-print-mode");
+    box.querySelector("#olvPrintNowBtn").addEventListener("click", function () { window.print(); });
+    box.querySelector("#olvPrintCloseBtn").addEventListener("click", closePrintSummary);
+    if (box.scrollIntoView) box.scrollIntoView({ behavior: "auto", block: "start" });
+  }
+
+  function closePrintSummary() {
+    var box = document.getElementById("olvPrintSummary");
+    if (!box || box.hidden) return;
+    box.hidden = true;
+    box.classList.remove("show");
+    document.body.classList.remove("olv-print-mode");
+  }
+
   // ---- init -------------------------------------------------------------
   function init() {
     root = document.getElementById("olvFormRoot");
     if (!root) return;
     statusEl = document.getElementById("olvStatus");
     errorsBox = document.getElementById("olvErrors");
+    progressEl = document.getElementById("olvProgress");
     renderAll(window.OLV_SCHEMA);
+    buildProgressPanel(window.OLV_SCHEMA);
     restoreDraft();
-    root.addEventListener("input", saveDraftSoon);
-    root.addEventListener("change", saveDraftSoon);
+    updateProgress();
+    root.addEventListener("input", function () { saveDraftSoon(); updateProgress(); });
+    root.addEventListener("change", function () { saveDraftSoon(); updateProgress(); });
+    root.addEventListener("blur", function (e) {
+      if (e.target && e.target.classList && e.target.classList.contains("olv-input")) checkCodeWarn(e.target);
+    }, true);
     var exportBtn = document.getElementById("olvExportBtn");
     if (exportBtn) exportBtn.addEventListener("click", doExport);
     var clearBtn = document.getElementById("olvClearBtn");
     if (clearBtn) clearBtn.addEventListener("click", clearDraft);
     var saveBtn = document.getElementById("olvSaveBtn");
     if (saveBtn) saveBtn.addEventListener("click", saveDraft);
+    var exportDraftBtn = document.getElementById("olvExportDraftBtn");
+    if (exportDraftBtn) exportDraftBtn.addEventListener("click", downloadDraftFile);
+    var importFileInput = document.getElementById("olvImportFile");
+    var importDraftBtn = document.getElementById("olvImportDraftBtn");
+    if (importDraftBtn && importFileInput) {
+      importDraftBtn.addEventListener("click", function () { importFileInput.click(); });
+      importFileInput.addEventListener("change", function () {
+        if (importFileInput.files && importFileInput.files[0]) importDraftFile(importFileInput.files[0]);
+        importFileInput.value = "";
+      });
+    }
+    var fillBtn = document.getElementById("olvFillBtn");
+    if (fillBtn) fillBtn.addEventListener("click", fillExample);
+    var printBtn = document.getElementById("olvPrintBtn");
+    if (printBtn) printBtn.addEventListener("click", openPrintSummary);
   }
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
