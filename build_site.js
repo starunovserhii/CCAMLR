@@ -104,6 +104,15 @@ function section(id, title, innerHtml) {
   </section>`;
 }
 function h3(t) { return `<h3>${t}</h3>`; }
+function worldClocksHtml() {
+  return `<div class="world-clocks" role="group" aria-label="Поточний час: Київ, Гринвіч, море Росса">
+    <div class="world-clock" data-tz="Europe/Kyiv"><span class="world-clock-city">🇺🇦 Київ</span><span class="world-clock-time">--:--:--</span></div>
+    <div class="world-clock" data-tz="UTC"><span class="world-clock-city">🌍 Гринвіч (UTC)</span><span class="world-clock-time">--:--:--</span></div>
+    <div class="world-clock" data-tz="Pacific/Auckland"><span class="world-clock-city">🐧 Море Росса</span><span class="world-clock-time">--:--:--</span></div>
+  </div>
+  <p class="world-clocks-note">Час для моря Росса показано за новозеландським поясом (Pacific/Auckland) — саме його використовують дослідницькі станції в цьому районі (McMurdo, Scott Base) замість розрахунку за довготою.</p>`;
+}
+
 function p(t) { return `<p>${t}</p>`; }
 function comment(t) { return `<div class="comment"><strong>Коментар:</strong> ${t}</div>`; }
 function ul(items) { return `<ul>${items.map(i => `<li>${i}</li>`).join("")}</ul>`; }
@@ -367,6 +376,7 @@ const heroBanner = `
 const indexBody = `
 ${heroBanner}
 ${section("intro", "Ласкаво просимо", `
+${worldClocksHtml()}
 <div id="examCountdown" class="countdown-widget" data-dates='[["2026-07-20","Семінару 1"],["2026-07-27","Семінару 2"],["2026-08-15","ІСПИТУ"]]'></div>
 <div id="examCountdownFixed" class="countdown-widget countdown-exam" data-target="2026-08-15" data-label="ІСПИТУ (не пізніше)"></div>
 <p><a href="ccamlr-seminars-2026.ics" download class="btn" style="display:inline-block;text-decoration:none;">📅 Додати дати семінарів та іспиту в календар (.ics)</a></p>
@@ -2700,6 +2710,7 @@ sheetTemplate("templ-iuu", "11.12 IUU Sightings", "2026 Observer Longline Logboo
 
 const page20 =
 section("olv-intro", "en_OLv2026 — інтерактивна форма журналу спостерігача", `
+  ${worldClocksHtml()}
   ${p("Ця форма відтворює структуру офіційного електронного журналу наукового спостерігача CCAMLR — <strong>Observer Logbook, версія OLv2026a</strong> (ярусний промисел) — усі 12 робочих листів, з тими самими англійськими назвами полів, що й у реальному файлі.")}
   ${ul([
     "Усі назви полів, розділів і значення для заповнення — англійською мовою, як у справжньому журналі.",

@@ -87,6 +87,30 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // World clocks: Київ / Гринвіч (UTC) / море Росса. Для моря Росса
+  // використовується новозеландський час (Pacific/Auckland) — саме його
+  // застосовують дослідницькі станції в цьому районі (McMurdo, Scott Base),
+  // а не розрахунок за довготою.
+  var worldClockGroups = document.querySelectorAll(".world-clocks");
+  if (worldClockGroups.length) {
+    var tickWorldClocks = function () {
+      var now = new Date();
+      worldClockGroups.forEach(function (group) {
+        group.querySelectorAll(".world-clock[data-tz]").forEach(function (el) {
+          var timeEl = el.querySelector(".world-clock-time");
+          if (!timeEl) return;
+          try {
+            timeEl.textContent = new Intl.DateTimeFormat("uk-UA", {
+              timeZone: el.getAttribute("data-tz"), hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+            }).format(now);
+          } catch (e) { timeEl.textContent = "—"; }
+        });
+      });
+    };
+    tickWorldClocks();
+    setInterval(tickWorldClocks, 1000);
+  }
+
   // Back-to-top floating button
   var backToTop = document.getElementById("backToTop");
   if (backToTop) {

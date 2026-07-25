@@ -194,6 +194,15 @@ body {
   text-align: center;
 }
 
+.world-clocks { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 6px; }
+.world-clock {
+  flex: 1 1 150px; background: var(--accent-light); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 14px; text-align: center;
+}
+.world-clock-city { display: block; font-size: 0.8rem; color: var(--gray); margin-bottom: 2px; }
+.world-clock-time { display: block; font-size: 1.3rem; font-weight: 700; color: var(--accent2); font-variant-numeric: tabular-nums; }
+.world-clocks-note { font-size: 0.78rem; color: var(--gray); margin: 0 0 16px; line-height: 1.4; }
+
 .card {
   background: var(--card-bg);
   border: 1px solid var(--border);
