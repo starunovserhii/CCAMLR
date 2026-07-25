@@ -628,6 +628,13 @@ html[data-theme="dark"] .olv-input.olv-invalid { background: #3a1414; }
 .olv-gps-status { font-size: 0.85rem; color: var(--text); flex: 1 1 260px; }
 .olv-gps-status-err { color: var(--bad); }
 .olv-gps-clock { font-size: 0.85rem; color: var(--gray); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.olv-gps-manual-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin-top: 8px; }
+.olv-gps-manual-label { font-size: 0.8rem; color: var(--gray); }
+.olv-gps-manual-row input {
+  font: inherit; padding: 5px 8px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--card-bg); color: var(--text); width: 160px; max-width: 45vw;
+}
+.olv-gps-manual-row .btn { margin: 0; padding: 5px 12px; font-size: 0.85rem; }
 .olv-gps-hint { font-size: 0.78rem; color: var(--gray); margin: 8px 0 0; line-height: 1.4; }
 .olv-quick-gps, .olv-quick-now {
   width: 20px; height: 20px; line-height: 18px; border-radius: 5px; border: 1px solid var(--accent2); background: var(--card-bg);

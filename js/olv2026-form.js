@@ -1130,7 +1130,13 @@
       '<span id="olvGpsStatus" class="olv-gps-status">Позицію ще не визначено</span>' +
       '<span class="olv-gps-clock">🕒 <span id="olvUtcClock">--:--:--</span> UTC</span>' +
       "</div>" +
-      '<p class="olv-gps-hint">Кнопки <strong>📍</strong> біля координатних полів і <strong>🕒</strong> біля полів дати/часу підставлять туди щойно визначену позицію (у форматі шаблону — градуси + хвилини) і поточний час UTC. <strong>Визначення позиції потребує інтернет-з’єднання:</strong> на більшості ноутбуків і планшетів немає окремого супутникового GPS-приймача, тож браузер визначає місце через мережевий сервіс геолокації (за Wi-Fi/мобільною мережею) — без інтернету кнопка «Визначити позицію» найімовірніше поверне помилку. Точна супутникова позиція без інтернету можлива лише на пристроях зі справжнім GPS/ГНСС-чипом (переважно телефони) після захоплення сигналу супутників. Годинник UTC — це системний час пристрою (сам показ не потребує мережі), але його точність теж залежить від періодичного звірення часу через інтернет. Це зручність для практики, а не заміна суднового навігаційного обладнання та справжніх вимірів під час рейсу.</p>';
+      '<div class="olv-gps-manual-row">' +
+      '<span class="olv-gps-manual-label">Або ввести вручну (десяткові градуси):</span>' +
+      '<input type="number" id="olvGpsManualLat" step="any" min="-90" max="90" placeholder="широта, напр. -75.4363">' +
+      '<input type="number" id="olvGpsManualLon" step="any" min="-180" max="180" placeholder="довгота, напр. -175.2201">' +
+      '<button type="button" id="olvGpsManualBtn" class="btn btn-secondary">Застосувати</button>' +
+      "</div>" +
+      '<p class="olv-gps-hint">Кнопки <strong>📍</strong> біля координатних полів і <strong>🕒</strong> біля полів дати/часу підставлять туди щойно визначену позицію (у форматі шаблону — градуси + хвилини) і поточний час UTC. <strong>Автоматичне визначення позиції потребує інтернет-з’єднання</strong> — на більшості ноутбуків і планшетів немає окремого супутникового GPS-приймача, тож браузер визначає місце через мережевий сервіс геолокації (за Wi-Fi/мобільною мережею); без Wi-Fi/мережі або на судні без сигналу кнопка часто поверне помилку «позиція недоступна» — це обмеження браузера/ОС, а не сайту. У такому разі скористайтесь полем ручного вводу вище (координати з судового GPS-приймача чи іншого пристрою). Точна супутникова позиція без інтернету можлива лише на пристроях зі справжнім GPS/ГНСС-чипом (переважно телефони) після захоплення сигналу супутників. Годинник UTC — системний час пристрою.</p>';
     return div;
   }
 
@@ -1141,33 +1147,56 @@
     s.classList.toggle("olv-gps-status-err", !!isError);
   }
 
+  function applyFix(pos, accNote) {
+    lastFix = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, ts: Date.now() };
+    var dmLat = decimalToDegMin(lastFix.lat), dmLon = decimalToDegMin(lastFix.lon);
+    updateGpsStatus(
+      lastFix.lat.toFixed(5) + "°, " + lastFix.lon.toFixed(5) + "° (" +
+      dmLat.deg + "° " + dmLat.min.toFixed(2) + "′ / " + dmLon.deg + "° " + dmLon.min.toFixed(2) + "′), " +
+      "точність ±" + Math.round(lastFix.acc) + " м, о " + new Date(lastFix.ts).toLocaleTimeString("uk-UA") + (accNote || "")
+    );
+  }
+
+  function geoErrorMessage(err) {
+    if (!err) return "Не вдалося визначити позицію.";
+    if (err.code === 1) return "Доступ до GPS заборонено — дозвольте геолокацію для цього сайту в налаштуваннях браузера (та в системних налаштуваннях служб локації).";
+    if (err.code === 2) return "Позиція недоступна: браузер/ОС не змогли визначити місце (немає Wi-Fi поблизу для мережевої геолокації, немає GPS-чипа або немає сигналу супутників). Спробуйте: увімкнути Wi-Fi-адаптер (навіть без підключення до мережі), дозволити службу локації в ОС, або скористатись полем «Ввести вручну» нижче.";
+    if (err.code === 3) return "Час очікування GPS вичерпано, спробуйте ще раз або скористайтесь полем «Ввести вручну» нижче.";
+    return "Не вдалося визначити позицію.";
+  }
+
   function requestGpsFix() {
     if (!navigator.geolocation) {
-      updateGpsStatus("GPS не підтримується цим браузером/пристроєм.", true);
+      updateGpsStatus("GPS не підтримується цим браузером/пристроєм. Скористайтесь полем «Ввести вручну» нижче.", true);
       return;
     }
     updateGpsStatus("Визначення позиції…");
     navigator.geolocation.getCurrentPosition(
-      function (pos) {
-        lastFix = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, ts: Date.now() };
-        var dmLat = decimalToDegMin(lastFix.lat), dmLon = decimalToDegMin(lastFix.lon);
-        updateGpsStatus(
-          lastFix.lat.toFixed(5) + "°, " + lastFix.lon.toFixed(5) + "° (" +
-          dmLat.deg + "° " + dmLat.min.toFixed(2) + "′ / " + dmLon.deg + "° " + dmLon.min.toFixed(2) + "′), " +
-          "точність ±" + Math.round(lastFix.acc) + " м, о " + new Date(lastFix.ts).toLocaleTimeString("uk-UA")
+      function (pos) { applyFix(pos); },
+      function (firstErr) {
+        // Перша спроба (висока точність, зазвичай GPS-чип) не вдалась — пробуємо
+        // ще раз у режимі нижчої точності (мережева/IP-геолокація) перед тим, як
+        // остаточно повідомити про помилку.
+        navigator.geolocation.getCurrentPosition(
+          function (pos) { applyFix(pos, " (орієнтовно, мережева геолокація)"); },
+          function () { updateGpsStatus(geoErrorMessage(firstErr), true); },
+          { enableHighAccuracy: false, timeout: 10000, maximumAge: 60000 }
         );
-      },
-      function (err) {
-        var msg = "Не вдалося визначити позицію.";
-        if (err) {
-          if (err.code === 1) msg = "Доступ до GPS заборонено — дозвольте геолокацію для цього сайту в налаштуваннях браузера.";
-          else if (err.code === 2) msg = "Позиція недоступна (немає сигналу GPS/мережі).";
-          else if (err.code === 3) msg = "Час очікування GPS вичерпано, спробуйте ще раз.";
-        }
-        updateGpsStatus(msg, true);
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
     );
+  }
+
+  function applyManualFix() {
+    var latEl = document.getElementById("olvGpsManualLat");
+    var lonEl = document.getElementById("olvGpsManualLon");
+    var lat = parseFloat(latEl && latEl.value);
+    var lon = parseFloat(lonEl && lonEl.value);
+    if (isNaN(lat) || isNaN(lon) || lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+      updateGpsStatus("Введіть коректні десяткові градуси: широта від -90 до 90, довгота від -180 до 180 (від'ємне = південь/захід).", true);
+      return;
+    }
+    applyFix({ coords: { latitude: lat, longitude: lon, accuracy: 0 } }, " (введено вручну)");
   }
 
   function tickUtcClock() {
@@ -1220,6 +1249,8 @@
     updateProgress();
     var gpsBtn = document.getElementById("olvGpsBtn");
     if (gpsBtn) gpsBtn.addEventListener("click", requestGpsFix);
+    var gpsManualBtn = document.getElementById("olvGpsManualBtn");
+    if (gpsManualBtn) gpsManualBtn.addEventListener("click", applyManualFix);
     tickUtcClock();
     setInterval(tickUtcClock, 1000);
     root.addEventListener("click", function (e) {
