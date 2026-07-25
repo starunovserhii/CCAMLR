@@ -2643,6 +2643,30 @@ section("templ-intro", "11.0 Загальні правила заповненн�
   ${ul(goldenRules)}
   ${comment("Цей розділ складено на основі вимог, розсіяних по кількох документах (2026 Observer Longline Logbook Instructions, C2 Commercial data manual, VME guide) і зведено в один практичний чекліст — у жодному з оригінальних файлів такого зведеного переліку немає. Назви полів звірені напряму з текстом інструкції до журналу спостерігача (не перекладені й не вигадані), оскільки сам журнал ведеться англійською.")}
 `) +
+section("templ-guides", "11.0.1 Готові ілюстровані посібники для завантаження", `
+<div class="featured-download">
+  <div class="featured-download-icon">📘</div>
+  <div class="featured-download-body">
+    <div class="featured-download-title">Ілюстрований посібник із заповнення журналу спостерігача Observer Logbook (OLv2026a)</div>
+    <div class="featured-download-desc">Розібрано всі 12 робочих листів електронного OL-журналу на реальному завершеному прикладі рейсу (SEVEN PARK, море Росса, грудень 2025) — зі скріншотами кожного листа, поясненням колонок та розбором реальної помилки заповнення.</div>
+    <div class="featured-download-actions">
+      <a href="downloads/CCAMLR-OLv2026a-posibnyk-zapovnennya.docx" download>⬇ DOCX (Word)</a>
+      <a href="downloads/CCAMLR-OLv2026a-posibnyk-zapovnennya.pdf" download class="secondary">⬇ PDF (для друку)</a>
+    </div>
+  </div>
+</div>
+<div class="featured-download">
+  <div class="featured-download-icon">🎓</div>
+  <div class="featured-download-body">
+    <div class="featured-download-title">Ілюстрований посібник-презентація для кваліфікаційної атестації наукових спостерігачів ККАМЛР (ДНУ ІРГЕМО)</div>
+    <div class="featured-download-desc">42 слайди — узагальнюють весь матеріал цього сайту з ілюстраціями: конвенція, заходи зі збереження, визначники видів, знаряддя лову, мічення, форми спостерігача та підготовка до іспиту.</div>
+    <div class="featured-download-actions">
+      <a href="downloads/CCAMLR-IRGEMO-posibnyk-atestatsiya.pptx" download>⬇ PPTX (презентація)</a>
+      <a href="downloads/CCAMLR-IRGEMO-posibnyk-atestatsiya.pdf" download class="secondary">⬇ PDF (для друку)</a>
+    </div>
+  </div>
+</div>
+`) +
 sheetTemplate("templ-vessel", "11.1 Vessel and Gear", "2026 Observer Longline Logbook Instructions.pdf", templVesselGear,
   "Заповнюється один раз на рейс (на початку), але перевіряється й коригується, якщо тип знаряддя або конфігурація стример-лінії змінюється протягом рейсу.") +
 sheetTemplate("templ-sethaul", "11.2 Set and Haul Details", "2026 Observer Longline Logbook Instructions.pdf", templSetHaul,
