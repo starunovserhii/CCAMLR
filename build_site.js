@@ -22,6 +22,7 @@ const NAV = [
   ["03-forms-main.html", "Форми головні", "📝"],
   ["04-forms-instructions.html", "Форми та інструкції", "📋"],
   ["11-templates.html", "Заповнення журналів", "📓"],
+  ["20-en-olv2026-form.html", "en_OLv2026 (інтерактивна форма)", "🖥️"],
   { group: "Довідники" },
   ["13-library.html", "Бібліотека документів", "📚"],
   ["14-glossary.html", "Глосарій термінів", "🔤"],
@@ -91,6 +92,7 @@ ${speciesModalHtml}
 <script src="js/search-index.js"></script>
 <script src="js/script.js"></script>
 <script>if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("sw.js").catch(function(){});});}</script>
+${opts.extraScripts || ""}
 </body>
 </html>`;
 }
@@ -2693,6 +2695,31 @@ sheetTemplate("templ-iuu", "11.12 IUU Sightings", "2026 Observer Longline Logboo
   "Головне правило безпеки: фіксація, а не контакт. Судно зобов'язане повідомити Секретаріат про ННН-спостереження якнайшвидше; дані спостерігача (особливо фото) — важливе доповнення до цього звіту.");
 
 // =====================================================================
+// PAGE 20 — en_OLv2026 interactive form
+// =====================================================================
+
+const page20 =
+section("olv-intro", "en_OLv2026 — інтерактивна форма журналу спостерігача", `
+  ${p("Ця форма відтворює структуру офіційного електронного журналу наукового спостерігача CCAMLR — <strong>Observer Logbook, версія OLv2026a</strong> (ярусний промисел) — усі 12 робочих листів, з тими самими англійськими назвами полів, що й у реальному файлі.")}
+  ${ul([
+    "Усі назви полів, розділів і значення для заповнення — англійською мовою, як у справжньому журналі.",
+    "Натисніть іконку <strong>ⓘ</strong> біля будь-якого поля, щоб побачити український переклад назви, пояснення призначення, формат і приклад заповнення.",
+    "Форма зберігає чернетку автоматично в цьому браузері (localStorage) — можна закрити вкладку і повернутися пізніше.",
+    "Кнопка «Експортувати в Excel» перевіряє обов'язкові поля і формати, а тоді формує справжній файл <strong>.xlsx</strong> із 12 листами — лише англомовні назви та введені дані, без українських підказок.",
+  ])}
+  ${comment("Ця форма — навчальний інструмент для практики заповнення журналу, побудований на основі реальної структури OLv2026a (див. розділ «Заповнення журналів» та ілюстрований посібник вище). Дані зберігаються лише у вашому браузері (localStorage) — на сервер нічого не надсилається. Перед офіційним рейсом користуйтеся справжнім файлом журналу від CCAMLR/Технічного координатора.")}
+`) +
+`<div class="olv-toolbar">
+  <button type="button" id="olvExportBtn" class="btn">⬇ Експортувати в Excel (.xlsx)</button>
+  <button type="button" id="olvSaveBtn" class="btn btn-secondary">💾 Зберегти чернетку зараз</button>
+  <button type="button" id="olvClearBtn" class="btn btn-secondary">🗑 Очистити форму</button>
+  <span id="olvStatus"></span>
+</div>
+<div id="olvErrors" class="olv-errors"></div>
+<noscript><div class="comment"><strong>Увага:</strong> ця форма потребує увімкненого JavaScript у браузері.</div></noscript>
+<div id="olvFormRoot"></div>`;
+
+// =====================================================================
 // WRITE FILES
 // =====================================================================
 
@@ -2716,6 +2743,10 @@ fs.writeFileSync("16-checklist.html", layout("Чек-лист підготовк
 fs.writeFileSync("17-other-fisheries.html", layout("Інші промисли (криль/кальмари/краби)", "17-other-fisheries.html", page17, { description: "Промисел антарктичного криля, кальмарів (Martialia hyadesi) і крабів (Paralomis spp.) у зоні CCAMLR — знаряддя лову, ліміти вилову, особливості для наукового спостерігача." }));
 fs.writeFileSync("18-inspection.html", layout("Інспекційна система", "18-inspection.html", page18, { description: "Інспекційна система CCAMLR: інспекція суден у морі (CM 10-02) і в порту (CM 10-03), взаємодія наукового спостерігача з інспекторами, звітність про ННН-промисел." }));
 fs.writeFileSync("19-internship.html", layout("Програма стажування", "19-internship.html", page19, { description: "Розклад 3-денного стажування для кандидатів на наукового спостерігача CCAMLR із посиланнями на відповідні розділи сайту." }));
+fs.writeFileSync("20-en-olv2026-form.html", layout("en_OLv2026 (інтерактивна форма)", "20-en-olv2026-form.html", page20, {
+  description: "Інтерактивна форма для заповнення журналу наукового спостерігача CCAMLR OLv2026a: усі 12 листів, підказки українською, валідація, автозбереження чернетки, експорт у .xlsx.",
+  extraScripts: `<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>\n<script src="js/olv2026-schema.js"></script>\n<script src="js/olv2026-form.js"></script>`,
+}));
 
 // =====================================================================
 // SEARCH INDEX
@@ -2744,6 +2775,7 @@ const searchPages = [
   ["07-vme.html", "7. VME", page07],
   ["08-tagging.html", "8. Мічення (Tagging)", page08],
   ["11-templates.html", "Заповнення журналів", page11],
+  ["20-en-olv2026-form.html", "en_OLv2026 (інтерактивна форма)", page20],
   ["12-species-cards.html", "Картки видів", page12],
   ["13-library.html", "Бібліотека документів", page13],
   ["14-glossary.html", "Глосарій термінів", page14],
