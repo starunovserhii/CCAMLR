@@ -619,6 +619,23 @@ html[data-theme="dark"] .olv-input.olv-invalid { background: #3a1414; }
   color: var(--accent2); font-size: 0.72rem; font-weight: 700; font-style: italic; cursor: pointer; padding: 0; flex-shrink: 0;
 }
 .olv-info-btn:hover { background: var(--accent2); color: #fff; }
+
+.olv-gps-panel {
+  background: var(--accent-light); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 18px;
+}
+.olv-gps-row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.olv-gps-row .btn { margin: 0; }
+.olv-gps-status { font-size: 0.85rem; color: var(--text); flex: 1 1 260px; }
+.olv-gps-status-err { color: var(--bad); }
+.olv-gps-clock { font-size: 0.85rem; color: var(--gray); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.olv-gps-hint { font-size: 0.78rem; color: var(--gray); margin: 8px 0 0; line-height: 1.4; }
+.olv-quick-gps, .olv-quick-now {
+  width: 20px; height: 20px; line-height: 18px; border-radius: 5px; border: 1px solid var(--accent2); background: var(--card-bg);
+  font-size: 0.78rem; cursor: pointer; padding: 0; flex-shrink: 0;
+}
+.olv-quick-gps:hover, .olv-quick-now:hover { background: var(--accent2); }
+.olv-cell-fill { display: flex; align-items: center; gap: 4px; }
+.olv-cell-fill .olv-input { flex: 1 1 auto; min-width: 0; }
 .olv-tooltip {
   display: none; position: fixed; z-index: 200; width: 280px; max-width: calc(100vw - 16px);
   max-height: 60vh; overflow-y: auto;

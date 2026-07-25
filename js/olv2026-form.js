@@ -180,12 +180,61 @@
     }
   }
 
+  // ---- GPS / поточний час: автозаповнення координат і дати/часу ----------
+  // Ключ = "<sectionId або sectionId::tableKey>::<fieldKey>". Прив'язка суто
+  // декларативна — щоб додати ще одне поле під автозаповнення, достатньо
+  // додати рядок сюди, коду більше ніде міняти не треба.
+  var QUICK_FILL = {
+    "sethaul::set_lat_deg": { kind: "coord-deg", axis: "lat", pairMin: "set_lat_min" },
+    "sethaul::set_lon_deg": { kind: "coord-deg", axis: "lon", pairMin: "set_lon_min" },
+    "sethaul::set_start": { kind: "now-datetime" },
+    "sethaul::set_finish": { kind: "now-datetime" },
+    "sethaul::haul_start": { kind: "now-datetime" },
+    "sethaul::haul_finish": { kind: "now-datetime" },
+    "vme::lat_deg": { kind: "coord-full", axis: "lat" },
+    "vme::lon_deg": { kind: "coord-full", axis: "lon" },
+    "tagging::release_lat": { kind: "coord-full", axis: "lat" },
+    "tagging::release_lon": { kind: "coord-full", axis: "lon" },
+    "iuu::gear::lat_deg": { kind: "coord-full", axis: "lat" },
+    "iuu::gear::lon_deg": { kind: "coord-full", axis: "lon" },
+    "iuu::gear::sight_dt": { kind: "now-datetime" },
+    "iuu::vessel::sight_dt": { kind: "now-datetime" },
+    "mmo::time_obs": { kind: "now-time" },
+  };
+
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+  function decimalToDegMin(dec) {
+    var deg = Math.trunc(dec);
+    var min = Math.abs(dec - deg) * 60;
+    return { deg: deg, min: Math.round(min * 100) / 100 };
+  }
+
+  function quickFillButtonsHtml(prefix, f, name) {
+    var cfg = QUICK_FILL[prefix + "::" + f.k];
+    if (!cfg) return "";
+    if (cfg.kind === "coord-deg") {
+      var minName = name.slice(0, name.length - f.k.length) + cfg.pairMin;
+      return '<button type="button" class="olv-quick-gps" data-axis="' + esc(cfg.axis) + '" data-deg="' + esc(name) + '" data-min="' + esc(minName) + '" title="Підставити з GPS (широта/довгота, градуси+хвилини)">📍</button>';
+    }
+    if (cfg.kind === "coord-full") {
+      return '<button type="button" class="olv-quick-gps" data-axis="' + esc(cfg.axis) + '" data-deg="' + esc(name) + '" title="Підставити з GPS (десяткові градуси)">📍</button>';
+    }
+    if (cfg.kind === "now-datetime") {
+      return '<button type="button" class="olv-quick-now" data-target="' + esc(name) + '" data-kind="datetime" title="Підставити поточну дату й час (UTC)">🕒</button>';
+    }
+    if (cfg.kind === "now-time") {
+      return '<button type="button" class="olv-quick-now" data-target="' + esc(name) + '" data-kind="time" title="Підставити поточний час (UTC)">🕒</button>';
+    }
+    return "";
+  }
+
   // ---- single/mixed group rendering (label grid) ------------------------
   function renderGroupField(f, sectionId) {
     var name = sectionId + "::" + f.k;
     return (
       '<div class="olv-field">' +
-      '<label class="olv-label" for="' + esc(name) + '">' + esc(f.en) + ' <span class="olv-field-ua">/ ' + esc(f.ua || "") + "</span>" + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + "</label>" +
+      '<label class="olv-label" for="' + esc(name) + '">' + esc(f.en) + ' <span class="olv-field-ua">/ ' + esc(f.ua || "") + "</span>" + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + quickFillButtonsHtml(sectionId, f, name) + "</label>" +
       renderControl(f, name, name) +
       '<div class="olv-error" data-error-for="' + esc(name) + '"></div>' +
       (f.list ? '<div class="olv-warn" data-warn-for="' + esc(name) + '"></div>' : "") +
@@ -232,7 +281,7 @@
     tr.dataset.row = String(rowIndex);
     tr.innerHTML = fields.map(function (f) {
       var name = tablePrefix + "::" + rowIndex + "::" + f.k;
-      return '<td data-label="' + esc(f.en + " / " + (f.ua || "")) + '">' + renderControl(f, name) +
+      return '<td data-label="' + esc(f.en + " / " + (f.ua || "")) + '"><div class="olv-cell-fill">' + renderControl(f, name) + quickFillButtonsHtml(tablePrefix, f, name) + "</div>" +
         '<div class="olv-error" data-error-for="' + esc(name) + '"></div>' +
         (f.list ? '<div class="olv-warn" data-warn-for="' + esc(name) + '"></div>' : "") +
         "</td>";
@@ -1069,6 +1118,94 @@
     document.body.classList.remove("olv-print-mode");
   }
 
+  // ---- GPS-панель: визначення позиції + годинник UTC ---------------------
+  var lastFix = null;
+
+  function buildGpsPanelEl() {
+    var div = document.createElement("div");
+    div.className = "olv-gps-panel";
+    div.innerHTML =
+      '<div class="olv-gps-row">' +
+      '<button type="button" id="olvGpsBtn" class="btn">📍 Визначити позицію (GPS)</button>' +
+      '<span id="olvGpsStatus" class="olv-gps-status">Позицію ще не визначено</span>' +
+      '<span class="olv-gps-clock">🕒 <span id="olvUtcClock">--:--:--</span> UTC</span>' +
+      "</div>" +
+      '<p class="olv-gps-hint">Кнопки <strong>📍</strong> біля координатних полів і <strong>🕒</strong> біля полів дати/часу підставлять туди щойно визначену позицію (у форматі шаблону — градуси + хвилини) і поточний час UTC. GPS бере дані з приймача вашого пристрою (ноутбук/телефон/планшет із GPS/A-GPS), а не з суднового навігаційного обладнання — це зручність для практики, а не заміна справжніх вимірів під час рейсу.</p>';
+    return div;
+  }
+
+  function updateGpsStatus(text, isError) {
+    var s = document.getElementById("olvGpsStatus");
+    if (!s) return;
+    s.textContent = text;
+    s.classList.toggle("olv-gps-status-err", !!isError);
+  }
+
+  function requestGpsFix() {
+    if (!navigator.geolocation) {
+      updateGpsStatus("GPS не підтримується цим браузером/пристроєм.", true);
+      return;
+    }
+    updateGpsStatus("Визначення позиції…");
+    navigator.geolocation.getCurrentPosition(
+      function (pos) {
+        lastFix = { lat: pos.coords.latitude, lon: pos.coords.longitude, acc: pos.coords.accuracy, ts: Date.now() };
+        var dmLat = decimalToDegMin(lastFix.lat), dmLon = decimalToDegMin(lastFix.lon);
+        updateGpsStatus(
+          lastFix.lat.toFixed(5) + "°, " + lastFix.lon.toFixed(5) + "° (" +
+          dmLat.deg + "° " + dmLat.min.toFixed(2) + "′ / " + dmLon.deg + "° " + dmLon.min.toFixed(2) + "′), " +
+          "точність ±" + Math.round(lastFix.acc) + " м, о " + new Date(lastFix.ts).toLocaleTimeString("uk-UA")
+        );
+      },
+      function (err) {
+        var msg = "Не вдалося визначити позицію.";
+        if (err) {
+          if (err.code === 1) msg = "Доступ до GPS заборонено — дозвольте геолокацію для цього сайту в налаштуваннях браузера.";
+          else if (err.code === 2) msg = "Позиція недоступна (немає сигналу GPS/мережі).";
+          else if (err.code === 3) msg = "Час очікування GPS вичерпано, спробуйте ще раз.";
+        }
+        updateGpsStatus(msg, true);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+    );
+  }
+
+  function tickUtcClock() {
+    var el = document.getElementById("olvUtcClock");
+    if (!el) return;
+    var now = new Date();
+    el.textContent = pad2(now.getUTCHours()) + ":" + pad2(now.getUTCMinutes()) + ":" + pad2(now.getUTCSeconds());
+  }
+
+  function fillGpsInto(btn) {
+    if (!lastFix) {
+      updateGpsStatus("Спочатку натисніть «📍 Визначити позицію (GPS)» вгорі форми.", true);
+      return;
+    }
+    var axis = btn.dataset.axis;
+    var decimal = axis === "lat" ? lastFix.lat : lastFix.lon;
+    var degEl = byName(btn.dataset.deg);
+    if (btn.dataset.min) {
+      var dm = decimalToDegMin(decimal);
+      if (degEl) degEl.value = dm.deg;
+      var minEl = byName(btn.dataset.min);
+      if (minEl) minEl.value = dm.min.toFixed(2);
+    } else if (degEl) {
+      degEl.value = Math.round(decimal * 10000) / 10000;
+    }
+  }
+
+  function fillNowInto(btn) {
+    var el = byName(btn.dataset.target);
+    if (!el) return;
+    var now = new Date();
+    if (btn.dataset.kind === "time") {
+      el.value = pad2(now.getUTCHours()) + ":" + pad2(now.getUTCMinutes());
+    } else {
+      el.value = now.getUTCFullYear() + "-" + pad2(now.getUTCMonth() + 1) + "-" + pad2(now.getUTCDate()) + "T" + pad2(now.getUTCHours()) + ":" + pad2(now.getUTCMinutes());
+    }
+  }
+
   // ---- init -------------------------------------------------------------
   function init() {
     root = document.getElementById("olvFormRoot");
@@ -1076,10 +1213,21 @@
     statusEl = document.getElementById("olvStatus");
     errorsBox = document.getElementById("olvErrors");
     progressEl = document.getElementById("olvProgress");
+    root.appendChild(buildGpsPanelEl());
     renderAll(window.OLV_SCHEMA);
     buildProgressPanel(window.OLV_SCHEMA);
     restoreDraft();
     updateProgress();
+    var gpsBtn = document.getElementById("olvGpsBtn");
+    if (gpsBtn) gpsBtn.addEventListener("click", requestGpsFix);
+    tickUtcClock();
+    setInterval(tickUtcClock, 1000);
+    root.addEventListener("click", function (e) {
+      var gpsFillBtn = e.target.closest(".olv-quick-gps");
+      if (gpsFillBtn) { fillGpsInto(gpsFillBtn); saveDraftSoon(); updateProgress(); return; }
+      var nowFillBtn = e.target.closest(".olv-quick-now");
+      if (nowFillBtn) { fillNowInto(nowFillBtn); saveDraftSoon(); updateProgress(); }
+    });
     root.addEventListener("input", function () { saveDraftSoon(); updateProgress(); });
     root.addEventListener("change", function () { saveDraftSoon(); updateProgress(); });
     root.addEventListener("blur", function (e) {
