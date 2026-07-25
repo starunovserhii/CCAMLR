@@ -13,7 +13,7 @@
 //
 // Bump CACHE_VERSION whenever build_site.js output changes, so old caches
 // are cleared and the new content is fetched.
-const CACHE_VERSION = "ccamlr-siso-v15";
+const CACHE_VERSION = "ccamlr-siso-v16";
 
 const APP_SHELL = [
   "index.html",
@@ -42,7 +42,8 @@ const APP_SHELL = [
   "js/search-index.js",
   "js/olv2026-schema.js",
   "js/olv2026-form.js",
-  "js/xlsx.full.min.js",
+  "js/fflate.umd.js",
+  "assets/OLv2026a_template.xlsx",
   "manifest.json"
 ];
 

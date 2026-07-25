@@ -642,6 +642,8 @@ html[data-theme="dark"] .olv-input.olv-invalid { background: #3a1414; }
 .olv-table .olv-input { min-width: 110px; }
 .olv-table textarea.olv-input { min-width: 160px; }
 .olv-col-del { width: 68px; min-width: 68px; text-align: center; white-space: nowrap; }
+.olv-fixed-label-th { min-width: 200px; }
+.olv-fixed-label { font-weight: 600; color: var(--accent2); background: var(--accent-light); min-width: 200px; white-space: normal; }
 .olv-del-row {
   background: none; border: 1px solid var(--bad); color: var(--bad); border-radius: 5px; width: 26px; height: 26px;
   cursor: pointer; font-size: 0.85rem; line-height: 1;

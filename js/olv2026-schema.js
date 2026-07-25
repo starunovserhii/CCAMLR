@@ -245,15 +245,44 @@ const OLV_SCHEMA = {
           F("plastic_bands", "Were plastic bands present on bait boxes?", "select", "Пластикові стрічки на коробках наживки?", "Пластикові стрічки з коробок наживки небезпечні для морської фауни, якщо потрапляють у море.", false, { opts: YESNO }),
         ]},
       ],
-      table: {
-        titleEn: "Fishing Gear", titleUa: "Знаряддя лову (підсумок за рейс)",
-        fields: [
-          F("item", "Fishing Gear", "text", "Категорія знаряддя", "Категорія знаряддя лову. Приклад: Hooks attached to lines.", true, { ph: "Hooks attached to lines" }),
-          F("lost", "Lost", "int", "Втрачено", "Кількість втраченого в морі знаряддя цієї категорії за рейс.", false, { min: 0, ph: "27120" }),
-          F("discarded", "Discarded", "int", "Викинуто", "Кількість навмисно викинутого знаряддя цієї категорії.", false, { min: 0, ph: "0" }),
-          F("retained", "Retained", "int", "Утилізовано на борту", "Кількість знаряддя, утилізованого штатно на борту.", false, { min: 0, ph: "0" }),
-        ],
-      },
+      tables: [
+        {
+          key: "gear", titleEn: "Fishing Gear", titleUa: "Знаряддя лову (підсумок за рейс)",
+          fixedRows: [
+            { k: "hooks", en: "Hooks attached to lines", ua: "Гачки на лінії" },
+            { k: "hookline", en: "Sections of hookline", ua: "Ділянки хребтини" },
+            { k: "rope", en: "Rope (topline and downline)", ua: "Мотузка (топлайн і даунлайн)" },
+            { k: "weights", en: "Weights and Anchors", ua: "Вантажі та якорі" },
+            { k: "floats", en: "Floats/Buoys/Bobbins", ua: "Поплавці/буї/бобінси" },
+            { k: "streamer", en: "Streamer line sections", ua: "Ділянки стример-лінії" },
+            { k: "other", en: "Other fishing gear (specify in report)", ua: "Інше знаряддя (вказати у звіті)" },
+          ],
+          fields: [
+            F("lost", "Lost", "int", "Втрачено", "Кількість втраченого в морі знаряддя цієї категорії за рейс.", false, { min: 0, ph: "0" }),
+            F("discarded", "Discarded", "int", "Викинуто", "Кількість навмисно викинутого знаряддя цієї категорії.", false, { min: 0, ph: "0" }),
+            F("retained", "Retained", "int", "Утилізовано на борту", "Кількість знаряддя, утилізованого штатно на борту.", false, { min: 0, ph: "0" }),
+          ],
+        },
+        {
+          key: "general", titleEn: "General Waste", titleUa: "Загальні відходи (підсумок за рейс)",
+          fixedRows: [
+            { k: "organic", en: "Galley waste organic", ua: "Органічні камбузні відходи" },
+            { k: "plastic", en: "Plastic (bags etc.)", ua: "Пластик (пакети тощо)" },
+            { k: "bands", en: "Plastic packaging bands", ua: "Пластикові пакувальні стрічки" },
+            { k: "metal", en: "Metal/Glass/Bottles", ua: "Метал/скло/пляшки" },
+            { k: "paper", en: "Paper/Cardboard", ua: "Папір/картон" },
+            { k: "fuel", en: "Fuel Oil", ua: "Паливна олива" },
+            { k: "sewage", en: "Sewage", ua: "Стічні води" },
+            { k: "polystyrene", en: "Polystyrene waste", ua: "Пінопластові відходи" },
+            { k: "ash", en: "Incinerator ash", ua: "Зола з інсинератора" },
+          ],
+          fields: [
+            F("lost", "Lost", "int", "Втрачено", "Кількість втраченого в морі цієї категорії відходів за рейс.", false, { min: 0, ph: "0" }),
+            F("discarded", "Discarded", "int", "Викинуто", "Кількість навмисно викинутого за борт (де це дозволено).", false, { min: 0, ph: "0" }),
+            F("retained", "Retained", "int", "Утилізовано на борту", "Кількість, утилізованої штатно на борту (інсинератор/накопичувач).", false, { min: 0, ph: "0" }),
+          ],
+        },
+      ],
     },
     // ------------------------------------------------------------- 12 -----
     {

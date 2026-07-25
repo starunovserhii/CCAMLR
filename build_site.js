@@ -2755,7 +2755,7 @@ fs.writeFileSync("18-inspection.html", layout("Інспекційна систе
 fs.writeFileSync("19-internship.html", layout("Програма стажування", "19-internship.html", page19, { description: "Розклад 3-денного стажування для кандидатів на наукового спостерігача CCAMLR із посиланнями на відповідні розділи сайту." }));
 fs.writeFileSync("20-en-olv2026-form.html", layout("en_OLv2026 (інтерактивна форма)", "20-en-olv2026-form.html", page20, {
   description: "Інтерактивна форма для заповнення журналу наукового спостерігача CCAMLR OLv2026a: усі 12 листів, підказки українською, валідація (включно з перевіркою між листами), автозбереження чернетки, збереження/завантаження чернетки файлом, офлайн-експорт у .xlsx.",
-  extraScripts: `<script src="js/xlsx.full.min.js"></script>\n<script src="js/olv2026-schema.js"></script>\n<script src="js/olv2026-form.js"></script>`,
+  extraScripts: `<script src="js/fflate.umd.js"></script>\n<script src="js/olv2026-schema.js"></script>\n<script src="js/olv2026-form.js"></script>`,
 }));
 
 // =====================================================================

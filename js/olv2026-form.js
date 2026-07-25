@@ -205,10 +205,26 @@
   }
 
   // ---- repeatable table rendering ---------------------------------------
-  function tableHeaderRow(fields) {
-    return "<tr>" + fields.map(function (f) {
+  function tableHeaderRow(fields, fixedRows) {
+    var leadTh = fixedRows ? '<th class="olv-fixed-label-th">Категорія / Category</th>' : "";
+    return "<tr>" + leadTh + fields.map(function (f) {
       return "<th>" + esc(f.en) + ' <span class="olv-field-ua">/ ' + esc(f.ua || "") + "</span>" + (f.req ? '<span class="olv-req">*</span>' : "") + infoButtonHtml(f) + "</th>";
     }).join("") + '<th class="olv-col-del"></th></tr>';
+  }
+
+  function buildFixedRow(fields, tablePrefix, rowIndex, rowDef) {
+    var tr = document.createElement("tr");
+    tr.dataset.row = String(rowIndex);
+    var leadTd = '<td class="olv-fixed-label" data-label="Категорія / Category">' + esc(rowDef.en) + '<span class="olv-field-ua"> / ' + esc(rowDef.ua || "") + "</span></td>";
+    var cells = fields.map(function (f) {
+      var name = tablePrefix + "::" + rowIndex + "::" + f.k;
+      return '<td data-label="' + esc(rowDef.en + " — " + f.en) + '">' + renderControl(f, name) +
+        '<div class="olv-error" data-error-for="' + esc(name) + '"></div>' +
+        (f.list ? '<div class="olv-warn" data-warn-for="' + esc(name) + '"></div>' : "") +
+        "</td>";
+    }).join("");
+    tr.innerHTML = leadTd + cells + '<td class="olv-col-del"></td>';
+    return tr;
   }
 
   function buildRow(fields, tablePrefix, rowIndex) {
@@ -290,16 +306,21 @@
     return el;
   }
 
-  function makeTableBlock(titleEn, titleUa, fields, tablePrefix, tkeyAttr) {
+  function makeTableBlock(titleEn, titleUa, fields, tablePrefix, tkeyAttr, fixedRows) {
     var wrap = document.createElement("div");
     wrap.innerHTML =
       (titleEn ? '<h3 class="olv-group-title">' + esc(titleEn) + '<span class="olv-group-title-ua"> / ' + esc(titleUa) + "</span></h3>" : "") +
-      '<div class="olv-table-wrap"><table class="olv-table"' + (tkeyAttr ? ' data-tkey="' + esc(tkeyAttr) + '"' : "") + "><thead>" + tableHeaderRow(fields) + "</thead><tbody></tbody></table></div>" +
-      '<button type="button" class="btn olv-add-row">+ Додати рядок (' + esc(titleEn || "") + ")</button>";
+      '<div class="olv-table-wrap"><table class="olv-table"' + (tkeyAttr ? ' data-tkey="' + esc(tkeyAttr) + '"' : "") + "><thead>" + tableHeaderRow(fields, fixedRows) + "</thead><tbody></tbody></table></div>" +
+      (fixedRows ? "" : '<button type="button" class="btn olv-add-row">+ Додати рядок (' + esc(titleEn || "") + ")</button>");
     var table = wrap.querySelector("table");
-    wireTable(table, fields, tablePrefix);
-    wrap.querySelector(".olv-add-row").addEventListener("click", function () { table._addRow(); saveDraftSoon(); });
-    table._addRow();
+    var tbody = table.querySelector("tbody");
+    if (fixedRows) {
+      fixedRows.forEach(function (rowDef, idx) { tbody.appendChild(buildFixedRow(fields, tablePrefix, idx, rowDef)); });
+    } else {
+      wireTable(table, fields, tablePrefix);
+      wrap.querySelector(".olv-add-row").addEventListener("click", function () { table._addRow(); saveDraftSoon(); });
+      table._addRow();
+    }
     return wrap;
   }
 
@@ -317,7 +338,9 @@
     el.className = "card olv-section";
     el.id = "olv-" + sec.id;
     el.innerHTML = sectionHeaderHtml(sec) + renderGroups(sec.groups, sec.id);
-    el.appendChild(makeTableBlock(sec.table.titleEn, sec.table.titleUa, sec.table.fields, sec.id + "::t"));
+    sec.tables.forEach(function (t) {
+      el.appendChild(makeTableBlock(t.titleEn, t.titleUa, t.fields, sec.id + "::" + t.key, t.key, t.fixedRows));
+    });
     return el;
   }
 
@@ -327,7 +350,7 @@
     el.id = "olv-" + sec.id;
     el.innerHTML = sectionHeaderHtml(sec);
     sec.tables.forEach(function (t) {
-      el.appendChild(makeTableBlock(t.titleEn, t.titleUa, t.fields, sec.id + "::" + t.key, t.key));
+      el.appendChild(makeTableBlock(t.titleEn, t.titleUa, t.fields, sec.id + "::" + t.key, t.key, t.fixedRows));
     });
     return el;
   }
@@ -475,8 +498,7 @@
       if (sec.id === "sethaul") return;
       var checkGroups = [];
       if (sec.kind === "table") checkGroups = [{ fields: sec.fields, prefix: sec.id }];
-      else if (sec.kind === "mixed") checkGroups = [{ fields: sec.table.fields, prefix: sec.id + "::t" }];
-      else if (sec.kind === "multitable") checkGroups = sec.tables.map(function (t) { return { fields: t.fields, prefix: sec.id + "::" + t.key }; });
+      else if (sec.kind === "mixed" || sec.kind === "multitable") checkGroups = sec.tables.map(function (t) { return { fields: t.fields, prefix: sec.id + "::" + t.key }; });
       checkGroups.forEach(function (cg) {
         if (!cg.fields.some(function (f) { return f.k === "haul_no"; })) return;
         root.querySelectorAll("tbody tr").forEach(function (tr) {
@@ -582,55 +604,273 @@
     errorsBox.innerHTML = "";
   }
 
-  // ---- export to xlsx -------------------------------------------------------
-  function sectionSingleAoa(groups, sectionId) {
-    var rows = [];
-    groups.forEach(function (g) {
-      rows.push([g.en]);
-      g.fields.forEach(function (f) {
-        var el = byName(sectionId + "::" + f.k);
-        rows.push([f.en, el ? el.value : ""]);
-      });
-      rows.push([]);
-    });
-    return rows;
-  }
+  // ---- export: fill the REAL OLv2026a template (surgical XML edit) ---------
+  // Замість генерації нового файлу "з нуля" (що втрачало б стилі/merge/формули),
+  // експорт бере справжній файл-шаблон assets/OLv2026a_template.xlsx, розпаковує
+  // його (fflate), і точково підставляє значення лише у клітинки, призначені для
+  // введення даних (усі інші клітинки, стилі, об'єднання, формули, довідкові
+  // листи "Introduction"/"CCAMLR Codes"/"Vessels" залишаються незмінними побайтово).
+  var EXPORT_MAP = {
+    vessel: {
+      kind: "single", sheet: "Vessel and Gear",
+      cells: {
+        imo: "C4", vname: "C5", callsign: "C6",
+        obs1_name: "C8", obs1_nat: "C9", obs1_email: "C10", obs1_start: "C12", obs1_end: "C13", obs1_board: "C14", obs1_disembark: "C15",
+        obs2_name: "C18", obs2_nat: "C19", obs2_start: "C22", obs2_end: "C23",
+        gear_match: "F4", set_position: "F5", offal_position: "F6",
+        streamer_used: "F12", streamer_height: "F14",
+      },
+    },
+    sethaul: {
+      kind: "table", sheet: "Set and Haul Details", dataStart: 7,
+      cols: { haul_no: "B", set_start: "C", set_finish: "D", set_lat_deg: "E", set_lat_min: "F", set_lon_deg: "G", set_lon_min: "H",
+        hooks_set: "M", mag_set: "N", deck_light: "P", haul_start: "T", haul_finish: "U", bird_device: "AD", offal_haul: "AE", comment: "AG" },
+    },
+    obscatch: {
+      kind: "table", sheet: "Observed Haul Catch", dataStart: 7,
+      cols: { haul_no: "B", obs_id: "C", species: "D", ret_tag: "E", ret_notag: "F", disc_dead: "G", rel_alive: "H", lost_surface: "I", heads_hooks: "J", lips_hooks: "K" },
+    },
+    imaf: {
+      kind: "table", sheet: "Haul IMAF", dataStart: 7,
+      cols: { haul_no: "B", species: "C", observed: "D", when: "E", fate: "F", cause: "G", sample: "H" },
+    },
+    mmo: {
+      kind: "table", sheet: "Marine Mammal Observation", dataStart: 7,
+      cols: { haul_no: "B", obs_id: "C", obs_possible: "D", depred: "E", presence: "F", time_obs: "G", species: "H", min_n: "I", max_n: "J" },
+    },
+    vme: {
+      kind: "table", sheet: "Haul VME", dataStart: 7,
+      cols: { haul_no: "B", segment_no: "C", bucket_unit: "D", sample_type: "E", lat_deg: "F", lon_deg: "H", vme_species: "J", volume: "K", weight: "L" },
+    },
+    bio: {
+      kind: "table", sheet: "Biological Sampling", dataStart: 7,
+      cols: { haul_no: "B", fish_no: "D", obs_id: "E", species: "F", total_len: "G", std_len: "O", weight: "P", sex: "Q", maturity: "R", gonad_w: "S", otolith: "T", otolith_no: "U" },
+    },
+    tagging: {
+      kind: "table", sheet: "Tagging", dataStart: 12,
+      cols: { haul_no: "B", species: "C", release_lat: "E", release_lon: "G", tag1_id: "J", tag2_id: "L", person: "O", total_len: "P", successful: "W", comment: "X" },
+    },
+    conv: {
+      kind: "table", sheet: "Conversion Factors", dataStart: 7,
+      cols: { haul_no: "B", species: "D", proc_code: "E", green_w: "G", proc_w: "H", cut_type: "J", comment: "M" },
+    },
+    recapture: {
+      kind: "table", sheet: "Tag Recapture", dataStart: 13,
+      cols: { haul_no: "B", finder: "C", species: "D", tag1_number: "H", tag1_wording: "I", tag2_number: "L", length: "R", weight: "Y", sex: "Z", maturity: "AA", gonad_w: "AB", samples: "AD", comment: "AI" },
+    },
+    waste: {
+      kind: "mixed", sheet: "Waste Disposal",
+      cells: { incinerator: "D3", holding: "D4", gear_marked: "D6", plastic_bands: "D8" },
+      tables: {
+        gear: { rowStart: 11, cols: { lost: "D", discarded: "E", retained: "F" } },
+        general: { rowStart: 19, cols: { lost: "D", discarded: "E", retained: "F" } },
+      },
+    },
+    iuu: {
+      kind: "multitable", sheet: "IUU Sightings",
+      tables: {
+        gear: { dataStart: 7, cols: { gear_type: "B", sight_dt: "C", lat_deg: "D", lon_deg: "F", photo: "H", mesh: "I" } },
+        vessel: { dataStart: 7, cols: { vessel_type: "K", vessel_name: "L", call_sign: "M", flag: "N", sight_dt: "O", comm: "U", activity: "V", heading: "W" } },
+      },
+    },
+  };
 
-  function tableAoa(fields, tablePrefix) {
-    var rows = [fields.map(function (f) { return f.en; })];
-    root.querySelectorAll("tbody tr").forEach(function (tr) {
-      var sample = tr.querySelector("[name]");
-      if (!sample || sample.name.indexOf(tablePrefix + "::") !== 0) return;
-      var rowVals = fields.map(function (f) {
-        var el = tr.querySelector('[data-key="' + f.k + '"]');
-        return el ? el.value : "";
-      });
-      if (rowVals.some(function (v) { return v !== ""; })) rows.push(rowVals);
-    });
-    return rows;
-  }
+  var SHEET_XML_PATH = {
+    "Vessel and Gear": "xl/worksheets/sheet2.xml",
+    "Set and Haul Details": "xl/worksheets/sheet3.xml",
+    "Observed Haul Catch": "xl/worksheets/sheet4.xml",
+    "Haul IMAF": "xl/worksheets/sheet5.xml",
+    "Marine Mammal Observation": "xl/worksheets/sheet6.xml",
+    "Haul VME": "xl/worksheets/sheet7.xml",
+    "Biological Sampling": "xl/worksheets/sheet8.xml",
+    "Conversion Factors": "xl/worksheets/sheet9.xml",
+    "Tagging": "xl/worksheets/sheet10.xml",
+    "Tag Recapture": "xl/worksheets/sheet11.xml",
+    "Waste Disposal": "xl/worksheets/sheet12.xml",
+    "IUU Sightings": "xl/worksheets/sheet13.xml",
+  };
 
-  function buildWorkbook(schema) {
-    var wb = XLSX.utils.book_new();
+  function buildFieldTypeIndex(schema) {
+    var idx = {};
     schema.sections.forEach(function (sec) {
-      var aoa;
       if (sec.kind === "single") {
-        aoa = sectionSingleAoa(sec.groups, sec.id);
+        sec.groups.forEach(function (g) { g.fields.forEach(function (f) { idx[sec.id + "::" + f.k] = f.type; }); });
       } else if (sec.kind === "table") {
-        aoa = tableAoa(sec.fields, sec.id);
+        sec.fields.forEach(function (f) { idx[sec.id + "::" + f.k] = f.type; });
       } else if (sec.kind === "mixed") {
-        aoa = sectionSingleAoa(sec.groups, sec.id).concat([[sec.table.titleEn]], tableAoa(sec.table.fields, sec.id + "::t"));
+        sec.groups.forEach(function (g) { g.fields.forEach(function (f) { idx[sec.id + "::" + f.k] = f.type; }); });
+        sec.tables.forEach(function (t) { t.fields.forEach(function (f) { idx[sec.id + "::" + t.key + "::" + f.k] = f.type; }); });
       } else {
-        aoa = [];
-        sec.tables.forEach(function (t) {
-          aoa = aoa.concat([[t.titleEn]], tableAoa(t.fields, sec.id + "::" + t.key), [[]]);
+        sec.tables.forEach(function (t) { t.fields.forEach(function (f) { idx[sec.id + "::" + t.key + "::" + f.k] = f.type; }); });
+      }
+    });
+    return idx;
+  }
+
+  function excelSerialUTC(y, mo, d, h, mi) {
+    var ms = Date.UTC(y, mo - 1, d, h || 0, mi || 0);
+    var epoch = Date.UTC(1899, 11, 30);
+    return (ms - epoch) / 86400000;
+  }
+
+  function cellValueFor(type, raw) {
+    if (raw === "" || raw == null) return null;
+    if (type === "int" || type === "num") {
+      var n = Number(raw);
+      return isNaN(n) ? null : { numeric: true, value: n };
+    }
+    if (type === "date") {
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(raw);
+      return m ? { numeric: true, value: excelSerialUTC(+m[1], +m[2], +m[3], 0, 0) } : null;
+    }
+    if (type === "datetime") {
+      var m2 = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/.exec(raw);
+      return m2 ? { numeric: true, value: excelSerialUTC(+m2[1], +m2[2], +m2[3], +m2[4], +m2[5]) } : null;
+    }
+    if (type === "time") {
+      var m3 = /^(\d{2}):(\d{2})$/.exec(raw);
+      return m3 ? { numeric: true, value: ((+m3[1]) * 60 + (+m3[2])) / 1440 } : null;
+    }
+    return { numeric: false, value: String(raw) };
+  }
+
+  function xmlEscapeText(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  }
+
+  function setCellInXml(xml, ref, cellVal) {
+    if (!cellVal) return xml;
+    var reSelf = new RegExp('<c r="' + ref + '"([^>]*)/>');
+    var reFull = new RegExp('<c r="' + ref + '"([^>]*)>[\\s\\S]*?</c>');
+    var m = reSelf.exec(xml);
+    if (!m) m = reFull.exec(xml);
+    if (!m) return xml; // цільова клітинка не знайдена у шаблоні — пропускаємо, нічого не ламаємо
+    var attrs = m[1].replace(/\s+t="[^"]*"/, "");
+    var newCell = cellVal.numeric
+      ? '<c r="' + ref + '"' + attrs + "><v>" + cellVal.value + "</v></c>"
+      : '<c r="' + ref + '"' + attrs + ' t="inlineStr"><is><t xml:space="preserve">' + xmlEscapeText(cellVal.value) + "</t></is></c>";
+    return xml.slice(0, m.index) + newCell + xml.slice(m.index + m[0].length);
+  }
+
+  function collectTemplateWrites() {
+    var writes = {};
+    function push(sheet, ref, cellVal) {
+      if (!cellVal) return;
+      if (!writes[sheet]) writes[sheet] = [];
+      writes[sheet].push({ ref: ref, cellVal: cellVal });
+    }
+    var schema = window.OLV_SCHEMA;
+    var typeIdx = buildFieldTypeIndex(schema);
+    schema.sections.forEach(function (sec) {
+      var map = EXPORT_MAP[sec.id];
+      if (!map) return;
+      if (map.kind === "single") {
+        Object.keys(map.cells).forEach(function (k) {
+          var el = byName(sec.id + "::" + k);
+          if (!el || el.value === "") return;
+          push(map.sheet, map.cells[k], cellValueFor(typeIdx[sec.id + "::" + k], el.value));
+        });
+      } else if (map.kind === "table") {
+        var written = 0;
+        root.querySelectorAll("tbody tr").forEach(function (tr) {
+          var sample = tr.querySelector("[name]");
+          if (!sample || sample.name.indexOf(sec.id + "::") !== 0) return;
+          var rowVals = {}, any = false;
+          Object.keys(map.cols).forEach(function (k) {
+            var el = tr.querySelector('[data-key="' + k + '"]');
+            var v = el ? el.value : "";
+            if (v !== "") any = true;
+            rowVals[k] = v;
+          });
+          if (!any) return;
+          var rowNum = map.dataStart + written;
+          written++;
+          Object.keys(map.cols).forEach(function (k) {
+            if (rowVals[k] === "") return;
+            push(map.sheet, map.cols[k] + rowNum, cellValueFor(typeIdx[sec.id + "::" + k], rowVals[k]));
+          });
+        });
+      } else if (map.kind === "mixed") {
+        if (map.cells) {
+          Object.keys(map.cells).forEach(function (k) {
+            var el = byName(sec.id + "::" + k);
+            if (!el || el.value === "") return;
+            push(map.sheet, map.cells[k], cellValueFor(typeIdx[sec.id + "::" + k], el.value));
+          });
+        }
+        Object.keys(map.tables || {}).forEach(function (tkey) {
+          var tmap = map.tables[tkey];
+          var prefix = sec.id + "::" + tkey;
+          root.querySelectorAll("tbody tr").forEach(function (tr) {
+            var sample = tr.querySelector("[name]");
+            if (!sample || sample.name.indexOf(prefix + "::") !== 0) return;
+            var rowIdx = parseInt(tr.dataset.row, 10);
+            var rowNum = tmap.rowStart + rowIdx;
+            Object.keys(tmap.cols).forEach(function (k) {
+              var el = tr.querySelector('[data-key="' + k + '"]');
+              var v = el ? el.value : "";
+              if (v === "") return;
+              push(map.sheet, tmap.cols[k] + rowNum, cellValueFor(typeIdx[sec.id + "::" + tkey + "::" + k], v));
+            });
+          });
+        });
+      } else if (map.kind === "multitable") {
+        Object.keys(map.tables).forEach(function (tkey) {
+          var tmap = map.tables[tkey];
+          var prefix = sec.id + "::" + tkey;
+          var written = 0;
+          root.querySelectorAll("tbody tr").forEach(function (tr) {
+            var sample = tr.querySelector("[name]");
+            if (!sample || sample.name.indexOf(prefix + "::") !== 0) return;
+            var rowVals = {}, any = false;
+            Object.keys(tmap.cols).forEach(function (k) {
+              var el = tr.querySelector('[data-key="' + k + '"]');
+              var v = el ? el.value : "";
+              if (v !== "") any = true;
+              rowVals[k] = v;
+            });
+            if (!any) return;
+            var rowNum = tmap.dataStart + written;
+            written++;
+            Object.keys(tmap.cols).forEach(function (k) {
+              if (rowVals[k] === "") return;
+              push(map.sheet, tmap.cols[k] + rowNum, cellValueFor(typeIdx[sec.id + "::" + tkey + "::" + k], rowVals[k]));
+            });
+          });
         });
       }
-      var ws = XLSX.utils.aoa_to_sheet(aoa);
-      var sheetName = (sec.num + ". " + sec.en).slice(0, 31);
-      XLSX.utils.book_append_sheet(wb, ws, sheetName);
     });
-    return wb;
+    return writes;
+  }
+
+  var _templateBytesCache = null;
+  function fetchTemplateBytes() {
+    if (_templateBytesCache) return Promise.resolve(_templateBytesCache);
+    return fetch("assets/OLv2026a_template.xlsx").then(function (resp) {
+      if (!resp.ok) throw new Error("HTTP " + resp.status);
+      return resp.arrayBuffer();
+    }).then(function (buf) {
+      _templateBytesCache = new Uint8Array(buf);
+      return _templateBytesCache;
+    });
+  }
+
+  function buildTemplateExportBlob() {
+    return fetchTemplateBytes().then(function (templateBytes) {
+      var files = fflate.unzipSync(templateBytes);
+      var writes = collectTemplateWrites();
+      var decoder = new TextDecoder("utf-8");
+      var encoder = new TextEncoder();
+      Object.keys(writes).forEach(function (sheetName) {
+        var path = SHEET_XML_PATH[sheetName];
+        if (!path || !files[path]) return;
+        var xml = decoder.decode(files[path]);
+        writes[sheetName].forEach(function (w) { xml = setCellInXml(xml, w.ref, w.cellVal); });
+        files[path] = encoder.encode(xml);
+      });
+      var zipped = fflate.zipSync(files, { level: 6 });
+      return new Blob([zipped], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+    });
   }
 
   function doExport() {
@@ -638,16 +878,28 @@
     problems.forEach(function (p) { setError(p.name, p.msg); });
     showProblems(problems);
     if (problems.length) return;
-    if (typeof XLSX === "undefined") {
+    if (typeof fflate === "undefined") {
       alert("Бібліотеку експорту ще не завантажено (потрібне інтернет-з’єднання під час першого відкриття сторінки). Перевірте з’єднання і спробуйте ще раз.");
       return;
     }
-    var wb = buildWorkbook(window.OLV_SCHEMA);
-    var vnameEl = byName("vessel::vname");
-    var vname = vnameEl && vnameEl.value ? vnameEl.value.trim().replace(/[^a-zA-Z0-9]+/g, "_") : "vessel";
-    var today = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(wb, "OLv2026a_" + vname + "_" + today + ".xlsx");
-    if (statusEl) statusEl.textContent = "Файл експортовано — " + new Date().toLocaleTimeString("uk-UA");
+    if (statusEl) statusEl.textContent = "Формування файлу на основі шаблону…";
+    buildTemplateExportBlob().then(function (blob) {
+      var vnameEl = byName("vessel::vname");
+      var vname = vnameEl && vnameEl.value ? vnameEl.value.trim().replace(/[^a-zA-Z0-9]+/g, "_") : "vessel";
+      var today = new Date().toISOString().slice(0, 10);
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url;
+      a.download = "OLv2026a_" + vname + "_" + today + ".xlsx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+      if (statusEl) statusEl.textContent = "Файл експортовано (на основі оригінального шаблону) — " + new Date().toLocaleTimeString("uk-UA");
+    }).catch(function (e) {
+      alert("Не вдалося сформувати файл на основі шаблону (" + e.message + "). Перевірте інтернет-з’єднання (потрібне для першого завантаження файлу-шаблону) і спробуйте ще раз.");
+      if (statusEl) statusEl.textContent = "Помилка експорту.";
+    });
   }
 
   // ---- draft export/import as a file (backup independent of localStorage) --
@@ -732,7 +984,7 @@
         fillTableRows(sec.id, sec.fields);
       } else if (sec.kind === "mixed") {
         sec.groups.forEach(function (g) { g.fields.forEach(function (f) { var el = byName(sec.id + "::" + f.k); if (el) el.value = sampleValueFor(f); }); });
-        fillTableRows(sec.id + "::t", sec.table.fields);
+        sec.tables.forEach(function (t) { fillTableRows(sec.id + "::" + t.key, t.fields); });
       } else {
         sec.tables.forEach(function (t) { fillTableRows(sec.id + "::" + t.key, t.fields); });
       }
@@ -761,21 +1013,29 @@
       }
       if (flatRows) block += '<table class="olv-print-table">' + flatRows + "</table>";
       var tableGroups = [];
-      if (sec.kind === "table") tableGroups = [{ fields: sec.fields, prefix: sec.id, title: null }];
-      else if (sec.kind === "mixed") tableGroups = [{ fields: sec.table.fields, prefix: sec.id + "::t", title: sec.table.titleEn }];
-      else if (sec.kind === "multitable") tableGroups = sec.tables.map(function (t) { return { fields: t.fields, prefix: sec.id + "::" + t.key, title: t.titleEn }; });
+      if (sec.kind === "table") tableGroups = [{ fields: sec.fields, prefix: sec.id, title: null, fixedRows: null }];
+      else if (sec.kind === "mixed") tableGroups = sec.tables.map(function (t) { return { fields: t.fields, prefix: sec.id + "::" + t.key, title: t.titleEn, fixedRows: t.fixedRows || null }; });
+      else if (sec.kind === "multitable") tableGroups = sec.tables.map(function (t) { return { fields: t.fields, prefix: sec.id + "::" + t.key, title: t.titleEn, fixedRows: t.fixedRows || null }; });
       tableGroups.forEach(function (tg) {
         var trs = [];
         root.querySelectorAll("tbody tr").forEach(function (tr) {
           var sample = tr.querySelector("[name]");
           if (!sample || sample.name.indexOf(tg.prefix + "::") !== 0) return;
           var cells = tg.fields.map(function (f) { var el = tr.querySelector('[data-key="' + f.k + '"]'); return el ? el.value.trim() : ""; });
-          if (cells.some(function (c) { return c !== ""; })) trs.push(cells);
+          if (!cells.some(function (c) { return c !== ""; })) return;
+          if (tg.fixedRows) {
+            var rowIdx = parseInt(tr.dataset.row, 10);
+            var label = tg.fixedRows[rowIdx] ? tg.fixedRows[rowIdx].en : "";
+            cells = [label].concat(cells);
+          }
+          trs.push(cells);
         });
         if (trs.length) {
           any = true;
+          var headCells = tg.fields.map(function (f) { return "<th>" + esc(f.en) + "</th>"; });
+          if (tg.fixedRows) headCells = ['<th>Category</th>'].concat(headCells);
           block += (tg.title ? '<p class="olv-print-subtitle">' + esc(tg.title) + "</p>" : "") +
-            '<table class="olv-print-table olv-print-rows"><thead><tr>' + tg.fields.map(function (f) { return "<th>" + esc(f.en) + "</th>"; }).join("") + "</tr></thead><tbody>" +
+            '<table class="olv-print-table olv-print-rows"><thead><tr>' + headCells.join("") + "</tr></thead><tbody>" +
             trs.map(function (row) { return "<tr>" + row.map(function (c) { return "<td>" + esc(c) + "</td>"; }).join("") + "</tr>"; }).join("") +
             "</tbody></table>";
         }
@@ -847,6 +1107,18 @@
     var printBtn = document.getElementById("olvPrintBtn");
     if (printBtn) printBtn.addEventListener("click", openPrintSummary);
   }
+
+  // Тестовий/діагностичний доступ до внутрішнього движка експорту (не впливає
+  // на звичайних користувачів — використовується лише в автоматизованих тестах).
+  window.__olvExportDebug = {
+    EXPORT_MAP: EXPORT_MAP,
+    SHEET_XML_PATH: SHEET_XML_PATH,
+    collectTemplateWrites: collectTemplateWrites,
+    cellValueFor: cellValueFor,
+    excelSerialUTC: excelSerialUTC,
+    setCellInXml: setCellInXml,
+    buildTemplateExportBlob: buildTemplateExportBlob,
+  };
 
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
   else init();
