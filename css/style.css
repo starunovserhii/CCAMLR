@@ -555,15 +555,15 @@ html[data-theme="dark"] .olv-input.olv-invalid { background: #3a1414; }
 }
 .olv-info-btn:hover { background: var(--accent2); color: #fff; }
 .olv-tooltip {
-  display: none; position: absolute; z-index: 40; left: 0; top: 22px; width: 280px; max-width: 78vw;
+  display: none; position: fixed; z-index: 200; width: 280px; max-width: calc(100vw - 16px);
+  max-height: 60vh; overflow-y: auto;
   background: #1B2733; color: #eef2f6; font-weight: 400; font-size: 0.8rem; line-height: 1.45; text-transform: none;
-  border-radius: 8px; padding: 10px 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  border-radius: 8px; padding: 10px 12px; box-shadow: 0 6px 18px rgba(0,0,0,0.35);
 }
 .olv-tooltip strong { display: block; color: #ffd76b; margin-bottom: 4px; font-size: 0.85rem; }
-.olv-tooltip span { display: block; margin-bottom: 4px; }
+.olv-tooltip span { display: block; margin-bottom: 4px; white-space: normal; word-break: break-word; }
 .olv-tooltip em { display: block; color: #ff9b9b; font-style: normal; font-size: 0.75rem; }
-.olv-info-wrap:hover .olv-tooltip, .olv-tooltip.show { display: block; }
-th .olv-tooltip { top: 24px; left: auto; right: 0; }
+.olv-tooltip.show { display: block; }
 .olv-table-wrap { overflow-x: auto; margin: 10px 0; }
 .olv-table { border-collapse: collapse; width: 100%; min-width: 640px; }
 .olv-table th {

@@ -41,20 +41,73 @@
       "</span>"
     );
   }
-  function closeTooltip() { if (openTooltip) { openTooltip.classList.remove("show"); openTooltip = null; } }
+  var tooltipPinned = false;
+
+  function positionTooltip(btn, tip) {
+    var margin = 8;
+    var r = btn.getBoundingClientRect();
+    var tw = tip.offsetWidth;
+    var th = tip.offsetHeight;
+    var left = r.left;
+    if (left + tw > window.innerWidth - margin) left = window.innerWidth - tw - margin;
+    if (left < margin) left = margin;
+    var top = r.bottom + 6;
+    if (top + th > window.innerHeight - margin) {
+      var above = r.top - th - 6;
+      top = above > margin ? above : margin;
+    }
+    tip.style.left = left + "px";
+    tip.style.top = top + "px";
+  }
+
+  function openTooltipFor(btn) {
+    var tip = btn.nextElementSibling;
+    if (!tip || !tip.classList.contains("olv-tooltip")) return;
+    if (openTooltip && openTooltip !== tip) closeTooltip();
+    tip.classList.add("show");
+    positionTooltip(btn, tip);
+    openTooltip = tip;
+  }
+  function closeTooltip() {
+    if (openTooltip) openTooltip.classList.remove("show");
+    openTooltip = null;
+    tooltipPinned = false;
+  }
+
   document.addEventListener("click", function (e) {
     var btn = e.target.closest && e.target.closest(".olv-info-btn");
     if (btn) {
       e.preventDefault();
       var tip = btn.nextElementSibling;
-      var wasOpen = tip === openTooltip;
-      closeTooltip();
-      if (!wasOpen) { tip.classList.add("show"); openTooltip = tip; }
+      if (openTooltip === tip && tooltipPinned) { closeTooltip(); return; }
+      openTooltipFor(btn);
+      tooltipPinned = true;
       return;
     }
     if (openTooltip && !e.target.closest(".olv-tooltip")) closeTooltip();
   });
+  document.addEventListener("mouseover", function (e) {
+    var btn = e.target.closest && e.target.closest(".olv-info-btn");
+    if (btn) openTooltipFor(btn);
+  });
+  document.addEventListener("mouseout", function (e) {
+    if (tooltipPinned) return;
+    var wrap = e.target.closest && e.target.closest(".olv-info-wrap");
+    if (!wrap) return;
+    if (e.relatedTarget && wrap.contains(e.relatedTarget)) return;
+    closeTooltip();
+  });
+  document.addEventListener("focusin", function (e) {
+    var btn = e.target.closest && e.target.closest(".olv-info-btn");
+    if (btn) openTooltipFor(btn);
+  });
+  document.addEventListener("focusout", function (e) {
+    var btn = e.target.closest && e.target.closest(".olv-info-btn");
+    if (btn && !tooltipPinned) closeTooltip();
+  });
   document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeTooltip(); });
+  window.addEventListener("scroll", function () { closeTooltip(); }, true);
+  window.addEventListener("resize", function () { closeTooltip(); });
 
   // ---- field input rendering -------------------------------------------
   function inputAttrs(f) {
