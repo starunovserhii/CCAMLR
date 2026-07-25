@@ -270,9 +270,16 @@
   }
 
   // ---- section renderers --------------------------------------------------
+  function calloutHtml(t) {
+    var kindClass = t.kind === "warn" ? "olv-callout-warn" : "olv-callout-tip";
+    return '<div class="olv-callout ' + kindClass + '"><strong>' + esc(t.label) + "</strong><span>" + esc(t.text) + "</span></div>";
+  }
+
   function sectionHeaderHtml(sec) {
     return "<h2>" + esc(sec.num) + ". " + esc(sec.en) + '<span class="olv-section-ua"> / ' + esc(sec.ua) + "</span></h2>" +
-      (sec.note ? '<p class="olv-note">' + esc(sec.note) + "</p>" : "");
+      (sec.guide ? '<p class="olv-guide">' + esc(sec.guide) + "</p>" : "") +
+      (sec.note ? '<p class="olv-note">' + esc(sec.note) + "</p>" : "") +
+      (sec.tips && sec.tips.length ? sec.tips.map(calloutHtml).join("") : "");
   }
 
   function renderSectionSingle(sec) {
